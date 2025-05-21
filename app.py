@@ -36,20 +36,20 @@ def get_activities_cached():
     return get_strava_activities(access_token)
 
 try:
-   st.subheader("🔄 Mise à jour manuelle des données")
+    st.subheader("🔄 Mise à jour manuelle des données")
 
-if st.button("📥 Actualiser mes données Strava"):
-    try:
-        activities = get_activities_cached()
-        st.success("✅ Données mises à jour !")
-    except Exception as e:
-        st.error("❌ Erreur lors de la récupération des données.")
-        st.exception(e)
-else:
-    st.info("🕒 Cliquez sur le bouton ci-dessus pour charger vos données.")
-    activities = None
+    if st.button("📥 Actualiser mes données Strava"):
+        try:
+            activities = get_activities_cached()
+            st.success("✅ Données mises à jour !")
+        except Exception as e:
+            st.error("❌ Erreur lors de la récupération des données.")
+            st.exception(e)
+    else:
+        st.info("🕒 Cliquez sur le bouton ci-dessus pour charger vos données.")
+        activities = None
 
-   if activities and isinstance(activities, list):
+    if activities and isinstance(activities, list):
         df = pd.DataFrame([{
             "Nom": act.get("name", "—"),
             "Distance (km)": round(act["distance"] / 1000, 2),
@@ -62,7 +62,6 @@ else:
         df["Date"] = pd.to_datetime(df["Date"])
         df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
 
-        # 🔍 Filtres
         st.subheader("📋 Filtrer les activités")
         types_disponibles = df["Type"].unique().tolist()
         type_choisi = st.selectbox("Type d'activité", ["Toutes"] + types_disponibles)
@@ -77,7 +76,6 @@ else:
         st.subheader("📋 Tableau des activités filtrées")
         st.dataframe(df)
 
-        # 📊 Graphique volume + allure
         st.subheader("📈 Volume hebdomadaire & Allure moyenne")
         df_weekly = df.groupby("Semaine").agg({
             "Distance (km)": "sum",
@@ -103,7 +101,6 @@ else:
 
         st.altair_chart(chart)
 
-        # 🧮 Statistiques hebdomadaires
         st.subheader("📊 Statistiques de la semaine la plus récente")
         if not df_weekly.empty:
             last_week = df_weekly.iloc[-1]
@@ -111,9 +108,9 @@ else:
             st.metric("Allure moyenne", f"{last_week['Allure (min/km)']:.2f} min/km")
             st.metric("Temps total", f"{last_week['Durée (min)']:.0f} min")
 
-    else:
+    elif activities is not None:
         st.warning("Aucune activité Strava trouvée.")
 
 except Exception as e:
-    st.error("❌ Une erreur est survenue lors de la récupération des données.")
+    st.error("❌ Une erreur est survenue lors de l'exécution.")
     st.exception(e)
