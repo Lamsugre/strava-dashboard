@@ -24,7 +24,7 @@ def refresh_access_token():
     res.raise_for_status()
     return res.json()["access_token"]
 
-# 📊 Fonction pour récupérer les activités via l'API
+# ✅ Définir ici la fonction Strava API
 def get_strava_activities(access_token, num_activities=10):
     url = f"https://www.strava.com/api/v3/athlete/activities"
     headers = {"Authorization": f"Bearer {access_token}"}
@@ -32,11 +32,16 @@ def get_strava_activities(access_token, num_activities=10):
     res = requests.get(url, headers=headers, params=params)
     res.raise_for_status()
     return res.json()
-
-# 🚀 Récupération des données
-try:
+    
+# 🔄 Mise en cache de l'appel combiné
+@st.cache_data(ttl=900) 
+def get_activities_cached():
     access_token = refresh_access_token()
-    activities = get_strava_activities(access_token)
+    return get_strava_activities(access_token)
+
+try:
+    activities = get_activities_cached()
+
 
     # ✅ Affichage des données si tout est OK
     if isinstance(activities, list) and activities:
