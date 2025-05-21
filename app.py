@@ -7,7 +7,7 @@ import datetime
 st.title("🏃 Mes dernières activités Strava")
 
 st.subheader("🛠️ Données brutes reçues :")
-st.json(activities)  # ← AJOUTE cette ligne
+st.json(activities) 
 
 if isinstance(activities, list) and activities:
     df = pd.DataFrame([{
