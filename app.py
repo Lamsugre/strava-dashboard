@@ -1,19 +1,10 @@
 import streamlit as st
-# 📈 Affichage
+import requests
+import pandas as pd
+
 st.title("🏃 Mes dernières activités Strava")
+
+activities = [{"name": "Test run", "distance": 5000, "elapsed_time": 1600, "start_date_local": "2024-01-01T09:00:00"}]
 
 st.subheader("🛠️ Données brutes reçues :")
 st.json(activities)
-
-if isinstance(activities, list) and activities:
-    df = pd.DataFrame([{
-        "Nom": act["name"],
-        "Distance (km)": round(act["distance"] / 1000, 2),
-        "Durée (min)": round(act["elapsed_time"] / 60, 1),
-        "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2),
-        "Date": act["start_date_local"][:10]
-    } for act in activities])
-    
-    st.dataframe(df)
-else:
-    st.error("❌ L'API Strava n'a pas renvoyé une liste d'activités valides.")
