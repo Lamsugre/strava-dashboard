@@ -1,3 +1,4 @@
+import streamlit as st
 # 📈 Affichage
 st.title("🏃 Mes dernières activités Strava")
 
