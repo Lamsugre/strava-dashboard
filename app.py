@@ -1,4 +1,9 @@
 # 📈 Affichage
+import streamlit as st
+import requests
+import pandas as pd
+import datetime
+
 st.title("🏃 Mes dernières activités Strava")
 
 st.subheader("🛠️ Données brutes reçues :")
