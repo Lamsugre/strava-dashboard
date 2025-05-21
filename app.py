@@ -4,15 +4,12 @@ import pandas as pd
 import datetime
 import altair as alt
 
-# 🧪 Titre de l'application
-st.title("🏃 Mes dernières activités Strava")
+st.title("🏃 Mon tableau de bord Strava - AI Coach X")
 
-# 🔐 Récupération des secrets Streamlit (stockés dans Settings > Secrets)
 client_id = st.secrets["STRAVA_CLIENT_ID"]
 client_secret = st.secrets["STRAVA_CLIENT_SECRET"]
 refresh_token = st.secrets["STRAVA_REFRESH_TOKEN"]
 
-# 🔁 Fonction pour rafraîchir le token d'accès
 def refresh_access_token():
     url = "https://www.strava.com/oauth/token"
     payload = {
@@ -25,17 +22,15 @@ def refresh_access_token():
     res.raise_for_status()
     return res.json()["access_token"]
 
-# ✅ Définir ici la fonction Strava API
-def get_strava_activities(access_token, num_activities=10):
+def get_strava_activities(access_token, num_activities=50):
     url = f"https://www.strava.com/api/v3/athlete/activities"
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {"per_page": num_activities, "page": 1}
     res = requests.get(url, headers=headers, params=params)
     res.raise_for_status()
     return res.json()
-    
-# 🔄 Mise en cache de l'appel combiné
-@st.cache_data(ttl=1800) 
+
+@st.cache_data(ttl=1800)
 def get_activities_cached():
     access_token = refresh_access_token()
     return get_strava_activities(access_token)
@@ -43,26 +38,36 @@ def get_activities_cached():
 try:
     activities = get_activities_cached()
 
-
-    # ✅ Affichage des données si tout est OK
     if isinstance(activities, list) and activities:
         df = pd.DataFrame([{
             "Nom": act.get("name", "—"),
             "Distance (km)": round(act["distance"] / 1000, 2),
             "Durée (min)": round(act["elapsed_time"] / 60, 1),
             "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
-            "Date": act["start_date_local"][:10]
+            "Date": act["start_date_local"][:10],
+            "Type": act.get("type", "—")
         } for act in activities])
 
-        st.subheader("📋 Tableau des activités")
-        st.dataframe(df)
-
-        # 🔽 Ajoute ici le graphique combiné (volume + allure)
-        st.subheader("📈 Volume hebdomadaire & Allure moyenne")
-        
-        import altair as alt
         df["Date"] = pd.to_datetime(df["Date"])
         df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
+
+        # 🔍 Filtres
+        st.subheader("📋 Filtrer les activités")
+        types_disponibles = df["Type"].unique().tolist()
+        type_choisi = st.selectbox("Type d'activité", ["Toutes"] + types_disponibles)
+
+        if type_choisi != "Toutes":
+            df = df[df["Type"] == type_choisi]
+
+        date_range = st.date_input("Période", [df["Date"].min(), df["Date"].max()])
+        if len(date_range) == 2:
+            df = df[(df["Date"] >= date_range[0]) & (df["Date"] <= date_range[1])]
+
+        st.subheader("📋 Tableau des activités filtrées")
+        st.dataframe(df)
+
+        # 📊 Graphique volume + allure
+        st.subheader("📈 Volume hebdomadaire & Allure moyenne")
         df_weekly = df.groupby("Semaine").agg({
             "Distance (km)": "sum",
             "Durée (min)": "sum"
@@ -86,7 +91,15 @@ try:
         )
 
         st.altair_chart(chart)
-    
+
+        # 🧮 Statistiques hebdomadaires
+        st.subheader("📊 Statistiques de la semaine la plus récente")
+        if not df_weekly.empty:
+            last_week = df_weekly.iloc[-1]
+            st.metric("Distance", f"{last_week['Distance (km)']:.1f} km")
+            st.metric("Allure moyenne", f"{last_week['Allure (min/km)']:.2f} min/km")
+            st.metric("Temps total", f"{last_week['Durée (min)']:.0f} min")
+
     else:
         st.warning("Aucune activité Strava trouvée.")
 
