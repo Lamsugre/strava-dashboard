@@ -36,9 +36,20 @@ def get_activities_cached():
     return get_strava_activities(access_token)
 
 try:
-    activities = get_activities_cached()
+   st.subheader("🔄 Mise à jour manuelle des données")
 
-    if isinstance(activities, list) and activities:
+if st.button("📥 Actualiser mes données Strava"):
+    try:
+        activities = get_activities_cached()
+        st.success("✅ Données mises à jour !")
+    except Exception as e:
+        st.error("❌ Erreur lors de la récupération des données.")
+        st.exception(e)
+else:
+    st.info("🕒 Cliquez sur le bouton ci-dessus pour charger vos données.")
+    activities = None
+
+   if activities and isinstance(activities, list):
         df = pd.DataFrame([{
             "Nom": act.get("name", "—"),
             "Distance (km)": round(act["distance"] / 1000, 2),
