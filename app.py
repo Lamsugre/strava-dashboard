@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 import datetime
+import altair as alt
 
 # 🧪 Titre de l'application
 st.title("🏃 Mes dernières activités Strava")
@@ -34,7 +35,7 @@ def get_strava_activities(access_token, num_activities=10):
     return res.json()
     
 # 🔄 Mise en cache de l'appel combiné
-@st.cache_data(ttl=900) 
+@st.cache_data(ttl=1800) 
 def get_activities_cached():
     access_token = refresh_access_token()
     return get_strava_activities(access_token)
@@ -55,6 +56,37 @@ try:
 
         st.subheader("📋 Tableau des activités")
         st.dataframe(df)
+
+        # 🔽 Ajoute ici le graphique combiné (volume + allure)
+        st.subheader("📈 Volume hebdomadaire & Allure moyenne")
+        
+        import altair as alt
+        df["Date"] = pd.to_datetime(df["Date"])
+        df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
+        df_weekly = df.groupby("Semaine").agg({
+            "Distance (km)": "sum",
+            "Durée (min)": "sum"
+        }).reset_index()
+        df_weekly["Allure (min/km)"] = df_weekly["Durée (min)"] / df_weekly["Distance (km)"]
+
+        bar_chart = alt.Chart(df_weekly).mark_bar(color="#1f77b4").encode(
+            x=alt.X("Semaine:O", title="Semaine"),
+            y=alt.Y("Distance (km):Q", title="Distance (km)"),
+            tooltip=["Semaine", "Distance (km)", "Allure (min/km)"]
+        )
+
+        line_chart = alt.Chart(df_weekly).mark_line(color="orange", point=True).encode(
+            x="Semaine:O",
+            y=alt.Y("Allure (min/km):Q", title="Allure (min/km)", axis=alt.Axis(titleColor="orange")),
+            tooltip=["Allure (min/km)"]
+        )
+
+        chart = alt.layer(bar_chart, line_chart).resolve_scale(y='independent').properties(
+            width=700, height=400
+        )
+
+        st.altair_chart(chart)
+    
     else:
         st.warning("Aucune activité Strava trouvée.")
 
