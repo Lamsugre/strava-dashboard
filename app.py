@@ -3,12 +3,26 @@ import requests
 import pandas as pd
 import datetime
 import altair as alt
+import json
+import os
 
 st.title("🏃 Mon tableau de bord Strava - AI Coach X")
 
 client_id = st.secrets["STRAVA_CLIENT_ID"]
 client_secret = st.secrets["STRAVA_CLIENT_SECRET"]
 refresh_token = st.secrets["STRAVA_REFRESH_TOKEN"]
+
+# Plan d'entraînement JSON
+PLAN_PATH = "plan_semi_vincennes_2025.json"
+
+# Chargement du plan structuré
+if os.path.exists(PLAN_PATH):
+    with open(PLAN_PATH, "r", encoding="utf-8") as f:
+        plan_data = json.load(f)
+    df_plan = pd.DataFrame(plan_data)
+    df_plan["date"] = pd.to_datetime(df_plan["date"])
+else:
+    df_plan = pd.DataFrame()
 
 def refresh_access_token():
     url = "https://www.strava.com/oauth/token"
@@ -108,6 +122,13 @@ try:
             st.metric("Distance", f"{last_week['Distance (km)']:.1f} km")
             st.metric("Allure moyenne", f"{last_week['Allure (min/km)']:.2f} min/km")
             st.metric("Temps total", f"{last_week['Durée (min)']:.0f} min")
+
+        st.subheader("🗓️ Mon plan d'entraînement")
+        if not df_plan.empty:
+            plan_du_jour = df_plan[df_plan["date"] >= pd.to_datetime(datetime.date(datetime.now()))].head(6)
+            st.dataframe(plan_du_jour)
+        else:
+            st.info("Aucun plan d'entraînement chargé.")
 
     elif activities is not None:
         st.warning("Aucune activité Strava trouvée.")
