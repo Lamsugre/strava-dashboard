@@ -49,14 +49,15 @@ def get_activities_cached():
     access_token = refresh_access_token()
     return get_strava_activities(access_token)
 
-activities = None
+activities = st.session_state.get("activities", None)
 
 try:
     st.subheader("🔄 Mise à jour manuelle des données")
 
-    if st.button("📅 Actualiser mes données Strava"):
+    if st.button("📅 Actualiser mes données Strava", key="refresh_btn"):
         try:
             activities = get_activities_cached()
+            st.session_state["activities"] = activities
             st.success("✅ Données mises à jour !")
         except Exception as e:
             st.error("❌ Erreur lors de la récupération des données.")
