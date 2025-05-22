@@ -20,6 +20,7 @@ if os.path.exists(PLAN_PATH):
     with open(PLAN_PATH, "r", encoding="utf-8") as f:
         plan_data = json.load(f)
     df_plan = pd.DataFrame(plan_data)
+    df_plan["date"] = pd.to_datetime(df_plan["date"])
 else:
     df_plan = pd.DataFrame()
 
@@ -127,15 +128,17 @@ try:
 
         st.subheader("🗓️ Mon plan d'entraînement")
         if not df_plan.empty:
-            plan_du_jour = df_plan[df_plan["date"] >= pd.to_datetime(datetime.datetime.now().date())].head(6)
+            today = datetime.datetime.now().date()
+            plan_du_jour = df_plan[df_plan["date"] >= pd.to_datetime(today)].head(6)
             plan_du_jour_display = plan_du_jour.copy()
+            plan_du_jour_display["date"] = plan_du_jour_display["date"].dt.strftime("%d/%m/%Y")
             plan_du_jour_display["phases"] = plan_du_jour_display["phases"].apply(
                 lambda p: " | ".join([f"{ph.get('nom', '')}: {ph.get('contenu', str(ph.get('durée_min', '')) + ' min')}" for ph in p])
             )
             st.dataframe(plan_du_jour_display)
             st.subheader("🧹 Détail des séances à venir")
             for _, row in plan_du_jour.iterrows():
-                with st.expander(f"{row['date']} - {row['type'].capitalize()} ({row['jour']})"):
+                with st.expander(f"{row['date'].strftime('%d/%m/%Y')} - {row['type'].capitalize()} ({row['jour']})"):
                     for phase in row['phases']:
                         nom = phase.get("nom", "")
                         contenu = phase.get("contenu") or f"{phase.get('durée_min', '')} min"
