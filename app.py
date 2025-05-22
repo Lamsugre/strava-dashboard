@@ -79,7 +79,7 @@ try:
 
         st.subheader("📋 Filtrer les activités")
         types_disponibles = df["Type"].unique().tolist()
-        type_choisi = st.selectbox("Type d'activité", ["Toutes"] + types_disponibles)
+        type_choisi = st.selectbox("Type d'activité", ["Toutes"] + types_disponibles, index=0, key="select_type")
 
         if type_choisi != "Toutes":
             df = df[df["Type"] == type_choisi]
@@ -126,7 +126,7 @@ try:
 
         st.subheader("🗓️ Mon plan d'entraînement")
         if not df_plan.empty:
-            plan_du_jour = df_plan[df_plan["date"] >= pd.to_datetime(datetime.date(datetime.now()))].head(6)
+            plan_du_jour = df_plan[df_plan["date"] >= pd.to_datetime(datetime.datetime.now().date())].head(6)
             st.dataframe(plan_du_jour)
         else:
             st.info("Aucun plan d'entraînement chargé.")
