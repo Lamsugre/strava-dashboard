@@ -78,7 +78,7 @@ if st.button("📥 Actualiser mes données Strava"):
         st.exception(e)
 
 if activities and isinstance(activities, list):
-    df = pd.DataFrame([{
+ df = pd.DataFrame([{
     "Nom": act.get("name", "—"),
     "Distance (km)": round(act["distance"] / 1000, 2),
     "Durée (min)": round(act["elapsed_time"] / 60, 1),
@@ -100,7 +100,9 @@ if activities and isinstance(activities, list):
     if type_choisi != "Toutes":
         df = df[df["Type"] == type_choisi]
 
-    st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
+ st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
+ st.dataframe(df[["Nom", "Allure (min/km)", "FC Moyenne", "FC Max"]])
+
 
     st.subheader("📈 Volume hebdomadaire & Allure moyenne")
     df_weekly = df.groupby("Semaine").agg({
@@ -184,7 +186,7 @@ if activities and isinstance(activities, list):
             st.error("❌ Erreur lors de l'application de la modification.")
             st.exception(e)
 
-wwith st.sidebar:
+with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
     if activities and isinstance(activities, list):
         question = st.text_area("Ta question au coach :", key="chat_input", height=120)
