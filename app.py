@@ -54,13 +54,13 @@ def appel_chatgpt_conseil(prompt, df_activites, df_plan):
     plan_resume = df_plan.head(3).to_markdown()
     activites_resume = df_activites.head(3).to_markdown()
     system_msg = "Tu es un coach sportif intelligent. Rédige un retour clair, synthétique et utile en te basant sur les dernières performances Strava et les séances prévues."
-    user_msg = f"Voici les séances prévues:
+    user_msg = f"""Voici les séances prévues:
 {plan_resume}
 
 Voici les séances réalisées:
 {activites_resume}
 
-Question: {prompt}"
+Question: {prompt}"""
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
