@@ -154,7 +154,7 @@ with st.sidebar:
             "Date": act["start_date_local"][:10],
             "Type": act.get("type", "—")
         } for act in activities])
-        question = st.text_input("Ta question au coach :", key="chat_input")
+        question = st.text_area("Ta question au coach :", key="chat_input", height=120)
         if question:
             reponse = appel_chatgpt_conseil(question, df, df_plan)
             st.markdown("---")
