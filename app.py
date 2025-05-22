@@ -92,6 +92,17 @@ if activities and isinstance(activities, list):
     df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
 
     st.subheader("📋 Tableau des activités")
+
+    types_disponibles = df["Type"].unique().tolist()
+    type_choisi = st.selectbox("Filtrer par type d'activité", ["Toutes"] + types_disponibles)
+    if type_choisi != "Toutes":
+        df = df[df["Type"] == type_choisi]
+
+    types_disponibles = df["Type"].unique().tolist()
+    type_choisi = st.selectbox("Filtrer par type d'activité", ["Toutes"] + types_disponibles)
+    if type_choisi != "Toutes":
+        df = df[df["Type"] == type_choisi]
+
     st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
 
     st.subheader("📈 Volume hebdomadaire & Allure moyenne")
