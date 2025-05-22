@@ -50,8 +50,9 @@ def get_activities_cached():
     return get_strava_activities(access_token)
 
 def appel_chatgpt_conseil(prompt, df_activites, df_plan):
-    from openai import OpenAI
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    import openai
+    plan_resume = df_plan.head(3).to_string(index=False)
+    activites_resume = df_activites.head(3).to_string(index=False)
     plan_resume = df_plan.head(3).to_string(index=False)
     activites_resume = df_activites.head(3).to_string(index=False)
     system_msg = "Tu es un coach sportif intelligent. Rédige un retour clair, synthétique et utile en te basant sur les dernières performances Strava et les séances prévues."
@@ -62,7 +63,7 @@ Voici les séances réalisées:
 {activites_resume}
 
 Question: {prompt}"""
-    response = client.chat.completions.create(
+    response = openai.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": system_msg},
