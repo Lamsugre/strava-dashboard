@@ -63,8 +63,8 @@ Voici les séances réalisées:
 {activites_resume}
 
 Question: {prompt}"""
-    response = openai.chat.completions.create(
-        model="gpt-4",
+    response = openai.ChatCompletion.create(
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": system_msg},
             {"role": "user", "content": user_msg}
