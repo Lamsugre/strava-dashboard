@@ -86,6 +86,7 @@ try:
 
         date_range = st.date_input("Période", [df["Date"].min(), df["Date"].max()])
         if len(date_range) == 2:
+            date_range = [pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])]
             df = df[(df["Date"] >= date_range[0]) & (df["Date"] <= date_range[1])]
 
         st.subheader("📋 Tableau des activités filtrées")
