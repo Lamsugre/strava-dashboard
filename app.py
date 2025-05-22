@@ -5,17 +5,17 @@ import datetime
 import altair as alt
 import json
 import os
+import openai
 
 st.title("🏃 Dashbord - AI Coach X")
 
 client_id = st.secrets["STRAVA_CLIENT_ID"]
 client_secret = st.secrets["STRAVA_CLIENT_SECRET"]
 refresh_token = st.secrets["STRAVA_REFRESH_TOKEN"]
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# Plan d'entraînement JSON
 PLAN_PATH = "plan_semi_vincennes_2025.json"
 
-# Chargement du plan structuré
 if os.path.exists(PLAN_PATH):
     with open(PLAN_PATH, "r", encoding="utf-8") as f:
         plan_data = json.load(f)
@@ -49,22 +49,25 @@ def get_activities_cached():
     access_token = refresh_access_token()
     return get_strava_activities(access_token)
 
+def appel_chatgpt_conseil(prompt, df_activites, df_plan):
+    plan_resume = df_plan.head(3).to_markdown()
+    activites_resume = df_activites.head(3).to_markdown()
+    system_msg = "Tu es un coach sportif intelligent. Rédige un retour clair, synthétique et utile en te basant sur les dernières performances Strava et les séances prévues."
+    user_msg = f"Voici les séances prévues:\n{plan_resume}\n\nVoici les séances réalisées:\n{activites_resume}\n\nQuestion: {prompt}"
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": user_msg}
+        ],
+        temperature=0.7
+    )
+    return response.choices[0].message["content"]
+
 activities = st.session_state.get("activities", None)
 
-try:
-    st.subheader("🔄 Mise à jour manuelle des données")
-
-    if st.button("📅 Actualiser mes données Strava", key="refresh_btn"):
-        try:
-            activities = get_activities_cached()
-            st.session_state["activities"] = activities
-            st.success("✅ Données mises à jour !")
-        except Exception as e:
-            st.error("❌ Erreur lors de la récupération des données.")
-            st.exception(e)
-    else:
-        st.info("🕒 Cliquez sur le bouton ci-dessus pour charger vos données.")
-
+with st.sidebar:
+    st.subheader("🧠 Coach IA : pose une question")
     if activities and isinstance(activities, list):
         df = pd.DataFrame([{
             "Nom": act.get("name", "—"),
@@ -74,81 +77,61 @@ try:
             "Date": act["start_date_local"][:10],
             "Type": act.get("type", "—")
         } for act in activities])
+        question = st.text_input("Ta question au coach :", key="chat_input")
+        if question:
+            reponse = appel_chatgpt_conseil(question, df, df_plan)
+            st.markdown("---")
+            st.markdown("**Réponse du coach :**")
+            st.markdown(reponse)
+    else:
+        st.markdown("⚠️ Données Strava non disponibles.")
 
-        df["Date"] = pd.to_datetime(df["Date"])
-        df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
-        df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
+# Réintégration de l'affichage principal
+if activities and isinstance(activities, list):
+    df["Date"] = pd.to_datetime(df["Date"])
+    df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
+    df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
 
-        st.subheader("📋 Filtrer les activités")
-        types_disponibles = df["Type"].unique().tolist()
-        type_choisi = st.selectbox("Type d'activité", ["Toutes"] + types_disponibles, index=0, key="select_type")
+    st.subheader("📋 Tableau des activités")
+    st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
 
-        if type_choisi != "Toutes":
-            df = df[df["Type"] == type_choisi]
+    st.subheader("📈 Volume hebdomadaire & Allure moyenne")
+    df_weekly = df.groupby("Semaine").agg({
+        "Distance (km)": "sum",
+        "Durée (min)": "sum"
+    }).reset_index()
+    df_weekly["Allure (min/km)"] = df_weekly["Durée (min)"] / df_weekly["Distance (km)"]
 
-        date_range = st.date_input("Période", [df["Date"].min(), df["Date"].max()])
-        if len(date_range) == 2:
-            date_range = [pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])]
-            df = df[(df["Date"] >= date_range[0]) & (df["Date"] <= date_range[1])]
+    bar_chart = alt.Chart(df_weekly).mark_bar(color="#1f77b4").encode(
+        x=alt.X("Semaine:O", title="Semaine"),
+        y=alt.Y("Distance (km):Q", title="Distance (km)"),
+        tooltip=["Semaine", "Distance (km)", "Allure (min/km)"]
+    )
 
-        st.subheader("📋 Tableau des activités filtrées")
-        st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
+    line_chart = alt.Chart(df_weekly).mark_line(color="orange", point=True).encode(
+        x="Semaine:O",
+        y=alt.Y("Allure (min/km):Q", title="Allure (min/km)", axis=alt.Axis(titleColor="orange")),
+        tooltip=["Allure (min/km)"]
+    )
 
-        st.subheader("📈 Volume hebdomadaire & Allure moyenne")
-        df_weekly = df.groupby("Semaine").agg({
-            "Distance (km)": "sum",
-            "Durée (min)": "sum"
-        }).reset_index()
-        df_weekly["Allure (min/km)"] = df_weekly["Durée (min)"] / df_weekly["Distance (km)"]
+    chart = alt.layer(bar_chart, line_chart).resolve_scale(y='independent').properties(
+        width=700, height=400
+    )
+    st.altair_chart(chart)
 
-        bar_chart = alt.Chart(df_weekly).mark_bar(color="#1f77b4").encode(
-            x=alt.X("Semaine:O", title="Semaine"),
-            y=alt.Y("Distance (km):Q", title="Distance (km)"),
-            tooltip=["Semaine", "Distance (km)", "Allure (min/km)"]
-        )
-
-        line_chart = alt.Chart(df_weekly).mark_line(color="orange", point=True).encode(
-            x="Semaine:O",
-            y=alt.Y("Allure (min/km):Q", title="Allure (min/km)", axis=alt.Axis(titleColor="orange")),
-            tooltip=["Allure (min/km)"]
-        )
-
-        chart = alt.layer(bar_chart, line_chart).resolve_scale(y='independent').properties(
-            width=700, height=400
-        )
-
-        st.altair_chart(chart)
-
-        st.subheader("📊 Statistiques de la semaine la plus récente")
-        if not df_weekly.empty:
-            last_week = df_weekly.iloc[-1]
-            st.metric("Distance", f"{last_week['Distance (km)']:.1f} km")
-            st.metric("Allure moyenne", f"{last_week['Allure (min/km)']:.2f} min/km")
-            st.metric("Temps total", f"{last_week['Durée (min)']:.0f} min")
-
-        st.subheader("🗓️ Mon plan d'entraînement")
-        if not df_plan.empty:
-            today = datetime.datetime.now().date()
-            plan_du_jour = df_plan[df_plan["date"] >= pd.to_datetime(today)].head(6)
-            plan_du_jour_display = plan_du_jour.copy()
-            plan_du_jour_display["date"] = plan_du_jour_display["date"].dt.strftime("%d/%m/%Y")
-            plan_du_jour_display["phases"] = plan_du_jour_display["phases"].apply(
-                lambda p: " | ".join([f"{ph.get('nom', '')}: {ph.get('contenu', str(ph.get('durée_min', '')) + ' min')}" for ph in p])
-            )
-            st.dataframe(plan_du_jour_display)
-            st.subheader("🧹 Détail des séances à venir")
-            for _, row in plan_du_jour.iterrows():
-                with st.expander(f"{row['date'].strftime('%d/%m/%Y')} - {row['type'].capitalize()} ({row['jour']})"):
-                    for phase in row['phases']:
-                        nom = phase.get("nom", "")
-                        contenu = phase.get("contenu") or f"{phase.get('durée_min', '')} min"
-                        st.markdown(f"**{nom.capitalize()}** → {contenu}")
-        else:
-            st.info("Aucun plan d'entraînement chargé.")
-
-    elif activities is not None:
-        st.warning("Aucune activité Strava trouvée.")
-
-except Exception as e:
-    st.error("❌ Une erreur est survenue lors de l'exécution.")
-    st.exception(e)
+    st.subheader("🗓️ Mon plan d'entraînement")
+    today = datetime.datetime.now().date()
+    plan_du_jour = df_plan[df_plan["date"] >= pd.to_datetime(today)].head(6)
+    plan_du_jour_display = plan_du_jour.copy()
+    plan_du_jour_display["date"] = plan_du_jour_display["date"].dt.strftime("%d/%m/%Y")
+    plan_du_jour_display["phases"] = plan_du_jour_display["phases"].apply(
+        lambda p: " | ".join([f"{ph.get('nom', '')}: {ph.get('contenu', str(ph.get('durée_min', '')) + ' min')}" for ph in p])
+    )
+    st.dataframe(plan_du_jour_display)
+    st.subheader("🧩 Détail des séances à venir")
+    for _, row in plan_du_jour.iterrows():
+        with st.expander(f"{row['date'].strftime('%d/%m/%Y')} - {row['type'].capitalize()} ({row['jour']})"):
+            for phase in row['phases']:
+                nom = phase.get("nom", "")
+                contenu = phase.get("contenu") or f"{phase.get('durée_min', '')} min"
+                st.markdown(f"**{nom.capitalize()}** → {contenu}")
