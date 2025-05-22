@@ -79,13 +79,15 @@ if st.button("📥 Actualiser mes données Strava"):
 
 if activities and isinstance(activities, list):
     df = pd.DataFrame([{
-        "Nom": act.get("name", "—"),
-        "Distance (km)": round(act["distance"] / 1000, 2),
-        "Durée (min)": round(act["elapsed_time"] / 60, 1),
-        "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
-        "Date": act["start_date_local"][:10],
-        "Type": act.get("type", "—")
-    } for act in activities])
+    "Nom": act.get("name", "—"),
+    "Distance (km)": round(act["distance"] / 1000, 2),
+    "Durée (min)": round(act["elapsed_time"] / 60, 1),
+    "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
+    "FC Moyenne": act.get("average_heartrate"),
+    "FC Max": act.get("max_heartrate"),
+    "Date": act["start_date_local"][:10],
+    "Type": act.get("type", "—")
+} for act in activities])
 
     df["Date"] = pd.to_datetime(df["Date"])
     df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
@@ -185,15 +187,12 @@ if activities and isinstance(activities, list):
 with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
     if activities and isinstance(activities, list):
-       df = pd.DataFrame([{
-    "Nom": act.get("name", "—"),
-    "Distance (km)": round(act["distance"] / 1000, 2),
-    "Durée (min)": round(act["elapsed_time"] / 60, 1),
-    "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
-    "FC Moyenne": act.get("average_heartrate"),
-    "FC Max": act.get("max_heartrate"),
-    "Date": act["start_date_local"][:10],
-    "Type": act.get("type", "—")
+    question = st.text_area("Ta question au coach :", key="chat_input", height=120)
+    if question:
+        reponse = appel_chatgpt_conseil(question, df, df_plan)
+        st.markdown("---")
+        st.markdown("**Réponse du coach :**")
+        st.markdown(reponse)
 } for act in activities])
         question = st.text_area("Ta question au coach :", key="chat_input", height=120)
         if question:
