@@ -175,7 +175,7 @@ if activities and isinstance(activities, list):
             df_plan.reset_index(inplace=True)
             df_plan.sort_values(by="date", inplace=True)
             with open(PLAN_PATH, "w", encoding="utf-8") as f:
-                json.dump(df_plan.to_dict(orient="records"), f, indent=2, ensure_ascii=False)
+               json.dump(df_plan.to_dict(orient="records"), f, indent=2, ensure_ascii=False, default=str)
             st.success("✅ Plan mis à jour avec succès.")
             st.rerun()
         except Exception as e:
