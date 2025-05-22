@@ -88,12 +88,21 @@ if st.button("📥 Actualiser mes données Strava"):
 
     # Test automatique du coach
     if activities:
+        df = pd.DataFrame([{
+            "Nom": act.get("name", "—"),
+            "Distance (km)": round(act["distance"] / 1000, 2),
+            "Durée (min)": round(act["elapsed_time"] / 60, 1),
+            "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
+            "Date": act["start_date_local"][:10],
+            "Type": act.get("type", "—")
+        } for act in activities])
         st.subheader("🧪 Test automatique du coach IA")
         test_question = "Quel est ton avis sur mes 3 dernières séances ? Est-ce que je suis régulier ?"
         reponse_test = appel_chatgpt_conseil(test_question, df, df_plan)
         st.markdown("**Question de test posée :**")
         st.markdown(test_question)
         st.markdown("**Réponse du coach :**")
+        st.markdown(reponse_test)
         st.markdown(reponse_test)
     try:
         activities = get_activities_cached()
