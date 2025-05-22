@@ -63,8 +63,7 @@ Voici les séances réalisées:
 {activites_resume}
 
 Question: {prompt}"""
-    client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-    response = client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": system_msg},
