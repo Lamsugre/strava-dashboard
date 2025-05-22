@@ -64,7 +64,18 @@ def appel_chatgpt_conseil(prompt, df_activites, df_plan):
     )
     return response.choices[0].message["content"]
 
+# 🔄 Récupération ou actualisation des activités
 activities = st.session_state.get("activities", None)
+
+st.subheader("📅 Actualisation des données")
+if st.button("📥 Actualiser mes données Strava"):
+    try:
+        activities = get_activities_cached()
+        st.session_state["activities"] = activities
+        st.success("Données Strava mises à jour avec succès.")
+    except Exception as e:
+        st.error("Erreur lors de la récupération des données.")
+        st.exception(e)
 
 with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
@@ -85,53 +96,3 @@ with st.sidebar:
             st.markdown(reponse)
     else:
         st.markdown("⚠️ Données Strava non disponibles.")
-
-# Réintégration de l'affichage principal
-if activities and isinstance(activities, list):
-    df["Date"] = pd.to_datetime(df["Date"])
-    df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
-    df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
-
-    st.subheader("📋 Tableau des activités")
-    st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
-
-    st.subheader("📈 Volume hebdomadaire & Allure moyenne")
-    df_weekly = df.groupby("Semaine").agg({
-        "Distance (km)": "sum",
-        "Durée (min)": "sum"
-    }).reset_index()
-    df_weekly["Allure (min/km)"] = df_weekly["Durée (min)"] / df_weekly["Distance (km)"]
-
-    bar_chart = alt.Chart(df_weekly).mark_bar(color="#1f77b4").encode(
-        x=alt.X("Semaine:O", title="Semaine"),
-        y=alt.Y("Distance (km):Q", title="Distance (km)"),
-        tooltip=["Semaine", "Distance (km)", "Allure (min/km)"]
-    )
-
-    line_chart = alt.Chart(df_weekly).mark_line(color="orange", point=True).encode(
-        x="Semaine:O",
-        y=alt.Y("Allure (min/km):Q", title="Allure (min/km)", axis=alt.Axis(titleColor="orange")),
-        tooltip=["Allure (min/km)"]
-    )
-
-    chart = alt.layer(bar_chart, line_chart).resolve_scale(y='independent').properties(
-        width=700, height=400
-    )
-    st.altair_chart(chart)
-
-    st.subheader("🗓️ Mon plan d'entraînement")
-    today = datetime.datetime.now().date()
-    plan_du_jour = df_plan[df_plan["date"] >= pd.to_datetime(today)].head(6)
-    plan_du_jour_display = plan_du_jour.copy()
-    plan_du_jour_display["date"] = plan_du_jour_display["date"].dt.strftime("%d/%m/%Y")
-    plan_du_jour_display["phases"] = plan_du_jour_display["phases"].apply(
-        lambda p: " | ".join([f"{ph.get('nom', '')}: {ph.get('contenu', str(ph.get('durée_min', '')) + ' min')}" for ph in p])
-    )
-    st.dataframe(plan_du_jour_display)
-    st.subheader("🧩 Détail des séances à venir")
-    for _, row in plan_du_jour.iterrows():
-        with st.expander(f"{row['date'].strftime('%d/%m/%Y')} - {row['type'].capitalize()} ({row['jour']})"):
-            for phase in row['phases']:
-                nom = phase.get("nom", "")
-                contenu = phase.get("contenu") or f"{phase.get('durée_min', '')} min"
-                st.markdown(f"**{nom.capitalize()}** → {contenu}")
