@@ -86,6 +86,23 @@ if st.button("📥 Actualiser mes données Strava"):
         st.error("Erreur lors de la récupération des données.")
         st.exception(e)
 
+    # Test automatique du coach
+    if activities:
+        st.subheader("🧪 Test automatique du coach IA")
+        test_question = "Quel est ton avis sur mes 3 dernières séances ? Est-ce que je suis régulier ?"
+        reponse_test = appel_chatgpt_conseil(test_question, df, df_plan)
+        st.markdown("**Question de test posée :**")
+        st.markdown(test_question)
+        st.markdown("**Réponse du coach :**")
+        st.markdown(reponse_test)
+    try:
+        activities = get_activities_cached()
+        st.session_state["activities"] = activities
+        st.success("Données Strava mises à jour avec succès.")
+    except Exception as e:
+        st.error("Erreur lors de la récupération des données.")
+        st.exception(e)
+
 # Affichage du tableau et du plan si les données sont disponibles
 if activities and isinstance(activities, list):
     df = pd.DataFrame([{
