@@ -50,19 +50,10 @@ def get_activities_cached():
     return get_strava_activities(access_token)
 
 def appel_chatgpt_conseil(prompt, df_activites, df_plan):
-    import openai
-    plan_resume = df_plan.head(3).to_string(index=False)
-    activites_resume = df_activites.head(3).to_string(index=False)
     plan_resume = df_plan.head(3).to_string(index=False)
     activites_resume = df_activites.head(3).to_string(index=False)
     system_msg = "Tu es un coach sportif intelligent. Rédige un retour clair, synthétique et utile en te basant sur les dernières performances Strava et les séances prévues."
-    user_msg = f"""Voici les séances prévues:
-{plan_resume}
-
-Voici les séances réalisées:
-{activites_resume}
-
-Question: {prompt}"""
+    user_msg = f"""Voici les séances prévues:\n{plan_resume}\n\nVoici les séances réalisées:\n{activites_resume}\n\nQuestion: {prompt}"""
     client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -74,7 +65,6 @@ Question: {prompt}"""
     )
     return response.choices[0].message.content
 
-# 🔄 Récupération ou actualisation des activités
 activities = st.session_state.get("activities", None)
 
 st.subheader("📅 Actualisation des données")
@@ -87,33 +77,6 @@ if st.button("📥 Actualiser mes données Strava"):
         st.error("Erreur lors de la récupération des données.")
         st.exception(e)
 
-    # Test automatique du coach
-    if activities:
-        df = pd.DataFrame([{
-            "Nom": act.get("name", "—"),
-            "Distance (km)": round(act["distance"] / 1000, 2),
-            "Durée (min)": round(act["elapsed_time"] / 60, 1),
-            "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
-            "Date": act["start_date_local"][:10],
-            "Type": act.get("type", "—")
-        } for act in activities])
-        st.subheader("🧪 Test automatique du coach IA")
-        test_question = "Quel est ton avis sur mes 3 dernières séances ? Est-ce que je suis régulier ?"
-        reponse_test = appel_chatgpt_conseil(test_question, df, df_plan)
-        st.markdown("**Question de test posée :**")
-        st.markdown(test_question)
-        st.markdown("**Réponse du coach :**")
-        st.markdown(reponse_test)
-        st.markdown(reponse_test)
-    try:
-        activities = get_activities_cached()
-        st.session_state["activities"] = activities
-        st.success("Données Strava mises à jour avec succès.")
-    except Exception as e:
-        st.error("Erreur lors de la récupération des données.")
-        st.exception(e)
-
-# Affichage du tableau et du plan si les données sont disponibles
 if activities and isinstance(activities, list):
     df = pd.DataFrame([{
         "Nom": act.get("name", "—"),
