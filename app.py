@@ -184,16 +184,9 @@ if activities and isinstance(activities, list):
             st.error("❌ Erreur lors de l'application de la modification.")
             st.exception(e)
 
-with st.sidebar:
+wwith st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
     if activities and isinstance(activities, list):
-    question = st.text_area("Ta question au coach :", key="chat_input", height=120)
-    if question:
-        reponse = appel_chatgpt_conseil(question, df, df_plan)
-        st.markdown("---")
-        st.markdown("**Réponse du coach :**")
-        st.markdown(reponse)
-} for act in activities])
         question = st.text_area("Ta question au coach :", key="chat_input", height=120)
         if question:
             reponse = appel_chatgpt_conseil(question, df, df_plan)
