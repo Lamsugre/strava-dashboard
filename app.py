@@ -94,7 +94,7 @@ if activities and isinstance(activities, list):
     st.subheader("📋 Tableau des activités")
 
     types_disponibles = df["Type"].unique().tolist()
-    type_choisi = st.selectbox("Filtrer par type d'activité", ["Toutes"] + types_disponibles)
+    type_choisi = st.selectbox("Filtrer par type d'activité", ["Toutes"] + types_disponibles, key="type_filter")
     if type_choisi != "Toutes":
         df = df[df["Type"] == type_choisi]
 
