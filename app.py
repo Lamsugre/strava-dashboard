@@ -7,8 +7,6 @@ import json
 import os
 import openai
 import base64
-import hashlib
-import hmac
 from github import Github
 
 st.title("🏃 Dashbord - AI Coach X")
@@ -18,10 +16,9 @@ client_secret = st.secrets["STRAVA_CLIENT_SECRET"]
 refresh_token = st.secrets["STRAVA_REFRESH_TOKEN"]
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 github_token = st.secrets["GITHUB_TOKEN"]
-github_repo = st.secrets["GITHUB_REPO"]  # format: username/repo
-plan_filename = "plan_semi_vincennes_2025.json"
+github_repo = st.secrets["GITHUB_REPO"]
 
-PLAN_PATH = plan_filename
+PLAN_PATH = "plan_semi_vincennes_2025.json"
 
 if os.path.exists(PLAN_PATH):
     with open(PLAN_PATH, "r", encoding="utf-8") as f:
@@ -56,18 +53,12 @@ def get_activities_cached():
     access_token = refresh_access_token()
     return get_strava_activities(access_token)
 
-def push_to_github(filepath, content_str, commit_message="Mise à jour auto du plan"): 
-    g = Github(github_token)
-    repo = g.get_repo(github_repo)
-    contents = repo.get_contents(filepath)
-    repo.update_file(contents.path, commit_message, content_str, contents.sha)
-
 def appel_chatgpt_conseil(prompt, df_activites, df_plan):
     plan_resume = df_plan.head(3).to_string(index=False)
     activites_resume = df_activites.head(3).to_string(index=False)
     system_msg = "Tu es un coach sportif intelligent. Rédige un retour clair, synthétique et utile en te basant sur les dernières performances Strava et les séances prévues."
     user_msg = f"""Voici les séances prévues:\n{plan_resume}\n\nVoici les séances réalisées:\n{activites_resume}\n\nQuestion: {prompt}"""
-    client = openai.OpenAI(api_key=openai.api_key)
+    client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -77,6 +68,19 @@ def appel_chatgpt_conseil(prompt, df_activites, df_plan):
         temperature=0.7
     )
     return response.choices[0].message.content
+
+def commit_to_github(updated_text):
+    g = Github(github_token)
+    repo = g.get_repo(github_repo)
+    file = repo.get_contents(PLAN_PATH)
+    encoded_content = base64.b64decode(file.content).decode("utf-8")
+    old_sha = file.sha
+    repo.update_file(
+        path=PLAN_PATH,
+        message="🟢 Mise à jour automatique du plan via IA",
+        content=updated_text,
+        sha=old_sha
+    )
 
 activities = st.session_state.get("activities", None)
 
@@ -114,8 +118,6 @@ if activities and isinstance(activities, list):
         df = df[df["Type"] == type_choisi]
 
     st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
-    st.dataframe(df[["Nom", "Allure (min/km)", "FC Moyenne", "FC Max"]])  # facultatif pour test
-
 
     st.subheader("📈 Volume hebdomadaire & Allure moyenne")
     df_weekly = df.groupby("Semaine").agg({
@@ -161,7 +163,7 @@ if activities and isinstance(activities, list):
 
     st.markdown("---")
     st.subheader("🛠️ Modifier mon plan avec l'IA")
-    edit_prompt = st.text_area("Décris le changement souhaité (ex: 'remplace la séance du 20 août par 10 km en EF à 5:20')", key="edit_prompt")
+    edit_prompt = st.text_area("Décris le changement souhaité", key="edit_prompt")
 
     if st.button("💬 Générer une proposition de modification IA"):
         try:
@@ -182,7 +184,7 @@ if activities and isinstance(activities, list):
             st.error("Erreur lors de la génération par l'IA.")
             st.exception(e)
 
- if "last_json_modif" in st.session_state and st.button("✅ Appliquer cette modification au fichier"):
+    if "last_json_modif" in st.session_state and st.button("✅ Appliquer cette modification au fichier"):
         try:
             new_obj = json.loads(st.session_state["last_json_modif"])
             df_plan["date"] = pd.to_datetime(df_plan["date"])
@@ -192,13 +194,11 @@ if activities and isinstance(activities, list):
             df_plan.reset_index(inplace=True)
             df_plan.sort_values(by="date", inplace=True)
 
-            updated_content = json.dumps(df_plan.to_dict(orient="records"), indent=2, ensure_ascii=False, default=str)
+            final_text = json.dumps(df_plan.to_dict(orient="records"), indent=2, ensure_ascii=False, default=str)
             with open(PLAN_PATH, "w", encoding="utf-8") as f:
-                f.write(updated_content)
-
-            push_to_github(plan_filename, updated_content)
-
-            st.success("✅ Plan mis à jour localement et sur GitHub.")
+                f.write(final_text)
+            commit_to_github(final_text)
+            st.success("✅ Plan mis à jour et synchronisé avec GitHub.")
             st.rerun()
         except Exception as e:
             st.error("❌ Erreur lors de l'application de la modification.")
