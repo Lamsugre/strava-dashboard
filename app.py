@@ -78,16 +78,16 @@ if st.button("📥 Actualiser mes données Strava"):
         st.exception(e)
 
 if activities and isinstance(activities, list):
- df = pd.DataFrame([{
-    "Nom": act.get("name", "—"),
-    "Distance (km)": round(act["distance"] / 1000, 2),
-    "Durée (min)": round(act["elapsed_time"] / 60, 1),
-    "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
-    "FC Moyenne": act.get("average_heartrate"),
-    "FC Max": act.get("max_heartrate"),
-    "Date": act["start_date_local"][:10],
-    "Type": act.get("type", "—")
-} for act in activities])
+    df = pd.DataFrame([{
+        "Nom": act.get("name", "—"),
+        "Distance (km)": round(act["distance"] / 1000, 2),
+        "Durée (min)": round(act["elapsed_time"] / 60, 1),
+        "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
+        "FC Moyenne": act.get("average_heartrate"),
+        "FC Max": act.get("max_heartrate"),
+        "Date": act["start_date_local"][:10],
+        "Type": act.get("type", "—")
+    } for act in activities])
 
     df["Date"] = pd.to_datetime(df["Date"])
     df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
@@ -100,8 +100,8 @@ if activities and isinstance(activities, list):
     if type_choisi != "Toutes":
         df = df[df["Type"] == type_choisi]
 
- st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
- st.dataframe(df[["Nom", "Allure (min/km)", "FC Moyenne", "FC Max"]])
+    st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
+    st.dataframe(df[["Nom", "Allure (min/km)", "FC Moyenne", "FC Max"]])  # facultatif pour test
 
 
     st.subheader("📈 Volume hebdomadaire & Allure moyenne")
