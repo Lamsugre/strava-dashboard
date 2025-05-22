@@ -50,9 +50,10 @@ def get_activities_cached():
     return get_strava_activities(access_token)
 
 def appel_chatgpt_conseil(prompt, df_activites, df_plan):
-    import tabulate  # force import to ensure availability in Streamlit Cloud
-    plan_resume = df_plan.head(3).to_markdown()
-    activites_resume = df_activites.head(3).to_markdown()
+    from openai import OpenAI
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    plan_resume = df_plan.head(3).to_string(index=False)
+    activites_resume = df_activites.head(3).to_string(index=False)
     system_msg = "Tu es un coach sportif intelligent. Rédige un retour clair, synthétique et utile en te basant sur les dernières performances Strava et les séances prévues."
     user_msg = f"""Voici les séances prévues:
 {plan_resume}
@@ -61,7 +62,7 @@ Voici les séances réalisées:
 {activites_resume}
 
 Question: {prompt}"""
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": system_msg},
@@ -69,7 +70,7 @@ Question: {prompt}"""
         ],
         temperature=0.7
     )
-    return response.choices[0].message["content"]
+    return response.choices[0].message.content
 
 # 🔄 Récupération ou actualisation des activités
 activities = st.session_state.get("activities", None)
