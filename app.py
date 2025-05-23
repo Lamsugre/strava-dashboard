@@ -108,6 +108,11 @@ def commit_to_github(updated_text):
         sha=old_sha
     )
 
+@st.cache_data(ttl=1800)
+def get_activities_cached():
+    access_token = refresh_access_token()
+    return get_strava_activities(access_token)
+
 # Page selector
 page = st.sidebar.radio("📂 Choisir une vue", ["🏠 Tableau général", "💥 Analyse Fractionné"])
 
