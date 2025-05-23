@@ -187,14 +187,7 @@ if activities and isinstance(activities, list):
             width=700, height=400
         )
         st.altair_chart(chart)
-        st.subheader("🗓️ Mon plan d'entraînement")
-        today = datetime.datetime.now().date()
-        plan_du_jour_display = plan_du_jour.copy()
-        plan_du_jour_display["date"] = plan_du_jour_display["date"].dt.strftime("%d/%m/%Y")
-        plan_du_jour_display["phases"] = plan_du_jour_display["phases"].apply(
-            lambda p: " | ".join([f"{ph.get('nom', '')}: {ph.get('contenu', str(ph.get('durée_min', '')) + ' min')}" for ph in p])
-        )
-        st.dataframe(plan_du_jour_display)
+        
     
         st.subheader("📅 Prochaines séances du plan")
         if not df_plan.empty:
