@@ -121,7 +121,22 @@ def commit_to_github(updated_text):
 def get_activities_cached():
     access_token = refresh_access_token()
     return get_strava_activities(access_token)
-
+activities = st.session_state.get("activities", None)
+with st.sidebar:
+    st.subheader("🧠 Coach IA : pose une question")
+    question = st.text_area("Ta question au coach :", key="chat_input", height=120)
+    if st.button("💬 Envoyer au coach IA"):
+        if activities and isinstance(activities, list):
+            try:
+                reponse = appel_chatgpt_conseil(question.strip(), df, df_plan)
+                st.markdown("---")
+                st.markdown("**Réponse du coach :**")
+                st.markdown(reponse)
+            except Exception as e:
+                st.error("❌ Erreur dans l’appel à l’IA.")
+                st.exception(e)
+        else:
+            st.warning("⚠️ Les données Strava ne sont pas encore chargées. Actualise les données avant de poser une question.")
 # Page selector
 page = st.sidebar.radio("📂 Choisir une vue", ["🏠 Tableau général", "💥 Analyse Fractionné"])
 
@@ -271,14 +286,4 @@ if activities and isinstance(activities, list):
             else:
                 st.info("Aucune séance 'tempo' détectée dans les descriptions Strava.")
 
-with st.sidebar:
-    st.subheader("🧠 Coach IA : pose une question")
-    if activities and isinstance(activities, list):
-        question = st.text_area("Ta question au coach :", key="chat_input", height=120)
-    if st.button("💬 Envoyer au coach IA") and question.strip():
-        reponse = appel_chatgpt_conseil(question.strip(), df, df_plan)
-        st.markdown("---")
-        st.markdown("**Réponse du coach :**")
-        st.markdown(reponse)
-    else:
-        st.markdown("⚠️ Données Strava non disponibles.")
+
