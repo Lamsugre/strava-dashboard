@@ -116,7 +116,37 @@ def commit_to_github(updated_text):
         content=updated_text,
         sha=old_sha
     )
+def appel_chatgpt_conseil(question, df_activities, df_plan):
+    import openai
 
+    # Préparer le contexte des données
+    resume_activites = df_activities[["Date_affichée", "Nom", "Distance (km)", "Allure (min/km)", "FC Moyenne"]].tail(5).to_string(index=False)
+    resume_plan = df_plan[["week", "day", "name", "type", "distance_km"]].head(5).to_string(index=False)
+
+    prompt = f"""Tu es un coach de course à pied expérimenté.
+Voici un résumé des dernières activités de l'utilisateur :
+{resume_activites}
+
+Voici les prochaines séances de son plan :
+{resume_plan}
+
+Voici sa question :
+{question}
+
+Réponds de manière claire, utile et personnalisée.
+"""
+
+    # Appel à l’API OpenAI
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "Tu es un coach sportif expert en préparation marathon."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.6,
+    )
+
+    return response["choices"][0]["message"]["content"]
 @st.cache_data(ttl=1800)
 def get_activities_cached():
     access_token = refresh_access_token()
