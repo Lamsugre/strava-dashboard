@@ -38,6 +38,9 @@ github_repo = st.secrets["GITHUB_REPO"]
 
 PLAN_PATH = "plan_semi_vincennes_2025.json"
 
+
+
+
 if os.path.exists(PLAN_PATH):
     with open(PLAN_PATH, "r", encoding="utf-8") as f:
         plan_data = json.load(f)
@@ -91,6 +94,7 @@ def commit_to_github(updated_text):
     g = Github(github_token)
     repo = g.get_repo(github_repo)
     file = repo.get_contents(PLAN_PATH)
+    encoded_content = base64.b64decode(file.content).decode("utf-8")
     old_sha = file.sha
     repo.update_file(
         path=PLAN_PATH,
@@ -98,9 +102,6 @@ def commit_to_github(updated_text):
         content=updated_text,
         sha=old_sha
     )
-
-# Page selector
-page = st.sidebar.radio("📂 Choisir une vue", ["🏠 Tableau général", "💥 Analyse Fractionné"])
 
 activities = st.session_state.get("activities", None)
 
@@ -224,20 +225,6 @@ if activities and isinstance(activities, list):
             st.error("❌ Erreur lors de l'application de la modification.")
             st.exception(e)
    
-
-    if page == "🏠 Tableau général":
-        st.subheader("📋 Tableau des activités")
-        types_disponibles = df["Type"].unique().tolist()
-        type_choisi = st.selectbox("Filtrer par type d'activité", ["Toutes"] + types_disponibles, key="type_filter")
-        if type_choisi != "Toutes":
-            df = df[df["Type"] == type_choisi]
-        st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
-
-    elif page == "💥 Analyse Fractionné":
-        st.subheader("💥 Analyse des séances de fractionné")
-        df_intervals = df[df["Nom"].str.contains("fractionné|VMA|10x|interv", case=False, na=False)]
-        st.dataframe(df_intervals[["Date_affichée", "Nom", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max"]])
-
 with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
     if activities and isinstance(activities, list):
