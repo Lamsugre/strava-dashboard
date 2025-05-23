@@ -58,7 +58,7 @@ def refresh_access_token():
     res.raise_for_status()
     return res.json()["access_token"]
 
-def def get_strava_activities(access_token, num_activities=50):
+def get_strava_activities(access_token, num_activities=50):
     url = f"https://www.strava.com/api/v3/athlete/activities"
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {"per_page": num_activities, "page": 1}
