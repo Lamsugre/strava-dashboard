@@ -95,18 +95,18 @@ def commit_to_github(updated_text):
     old_sha = file.sha
     repo.update_file(
         path=PLAN_PATH,
-        message="\ud83d\udfe2 Mise à jour automatique du plan via IA",
+        message="🟢 Mise à jour automatique du plan via IA",
         content=updated_text,
         sha=old_sha
     )
 
 # Page selector
-page = st.sidebar.radio("\ud83d\udcc2 Choisir une vue", ["\ud83c\udfe0 Tableau général", "\ud83d\udca5 Analyse Fractionné"])
+page = st.sidebar.radio("Choisir une vue", ["Tableau général", "Analyse Fractionné"])
 
 activities = st.session_state.get("activities", None)
 
-st.subheader("\ud83d\udcc5 Actualisation des données")
-if st.button("\ud83d\udce5 Actualiser mes données Strava"):
+st.subheader(" Actualisation des données")
+if st.button(" Actualiser mes données Strava"):
     try:
         activities = get_activities_cached()
         st.session_state["activities"] = activities
