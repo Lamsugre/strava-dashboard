@@ -189,7 +189,6 @@ if activities and isinstance(activities, list):
         st.altair_chart(chart)
         st.subheader("🗓️ Mon plan d'entraînement")
         today = datetime.datetime.now().date()
-        plan_du_jour = df_plan[df_plan["date"] >= pd.to_datetime(today)].head(6)
         plan_du_jour_display = plan_du_jour.copy()
         plan_du_jour_display["date"] = plan_du_jour_display["date"].dt.strftime("%d/%m/%Y")
         plan_du_jour_display["phases"] = plan_du_jour_display["phases"].apply(
@@ -197,13 +196,11 @@ if activities and isinstance(activities, list):
         )
         st.dataframe(plan_du_jour_display)
     
-        st.subheader("🧩 Détail des séances à venir")
-        for _, row in plan_du_jour.iterrows():
-            with st.expander(f"{row['date'].strftime('%d/%m/%Y')} - {row['type'].capitalize()} ({row['jour']})"):
-                for phase in row['phases']:
-                    nom = phase.get("nom", "")
-                    contenu = phase.get("contenu") or f"{phase.get('durée_min', '')} min"
-                    st.markdown(f"**{nom.capitalize()}** → {contenu}")
+        st.subheader("📅 Prochaines séances du plan")
+        if not df_plan.empty:
+            st.dataframe(df_plan.head(6))
+        else:
+            st.info("Aucune donnée de plan disponible.")
     
         st.markdown("---")
         st.subheader("🛠️ Modifier mon plan avec l'IA")
