@@ -41,8 +41,21 @@ PLAN_PATH = "plan_semi_vincennes_2025.json"
 if os.path.exists(PLAN_PATH):
     with open(PLAN_PATH, "r", encoding="utf-8") as f:
         plan_data = json.load(f)
-    df_plan = pd.DataFrame(plan_data)
-    df_plan["date"] = pd.to_datetime(df_plan["date"])
+    weeks = plan_data.get("weeks", [])
+    records = []
+    for week in weeks:
+        for session in week.get("sessions", []):
+            record = {
+                "week": week.get("week", ""),
+                "day": session.get("day", ""),
+                "name": session.get("name", ""),
+                "type": session.get("type", ""),
+                "duration_min": session.get("duration_min", ""),
+                "distance_km": session.get("distance_km", ""),
+                "details": json.dumps(session.get("details", {}))
+            }
+            records.append(record)
+    df_plan = pd.DataFrame(records)
 else:
     df_plan = pd.DataFrame()
 
