@@ -262,6 +262,22 @@ if activities and isinstance(activities, list):
         st.markdown("---")
         st.subheader("🛠️ Modifier mon plan avec l'IA")
         edit_prompt = st.text_area("Décris le changement souhaité", key="edit_prompt")
+
+        st.markdown("### 🗓️ Les 4 prochaines séances")
+        prochaines = df_plan.head(4)
+
+        for i, row in prochaines.iterrows():
+            with st.expander(f"🏃 {row['day']} – {row['name']}"):
+                st.markdown(f"**Type :** {row['type']}")
+                st.markdown(f"**Durée :** {row['duration_min']} min")
+                st.markdown(f"**Distance :** {row['distance_km']} km")
+                st.markdown("**Détails :**")
+                try:
+                    parsed_details = json.loads(row["details"])
+                    for k, v in parsed_details.items():
+                        st.markdown(f"- **{k}** : {v}")
+                except:
+                    st.markdown(row["details"])
     
         if st.button("💬 Générer une proposition de modification IA"):
             try:
