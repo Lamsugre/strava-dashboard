@@ -240,8 +240,11 @@ if activities and isinstance(activities, list):
 
     elif page == "💥 Analyse Fractionné":
         st.subheader("💥 Analyse des séances de fractionné")
-        df_intervals = df[df["Nom"].str.contains("fractionné|VMA|10x|interv", case=False, na=False)]
-        st.dataframe(df_intervals[["Date_affichée", "Nom", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max"]])
+        df_tempo = df[df["Description"].str.contains("tempo", case=False, na=False)]
+        if not df_tempo.empty:
+            st.dataframe(df_tempo[["Date_affichée", "Nom", "Description", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max"]])
+        else:
+            st.info("Aucune séance 'tempo' détectée dans les descriptions Strava.")
 
 with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
