@@ -240,6 +240,31 @@ if activities and isinstance(activities, list):
 
     elif page == "💥 Analyse Fractionné":
         st.subheader("💥 Analyse des séances de fractionné")
+        
+    # Appel API Strava pour récupérer les laps
+    activity_id = "14527571757"
+    access_token = refresh_access_token()
+    url_laps = f"https://www.strava.com/api/v3/activities/{activity_id}/laps"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    res = requests.get(url_laps, headers=headers)
+    
+    if res.status_code == 200:
+        laps_data = res.json()
+        df_laps = pd.DataFrame([{
+            "Lap": i + 1,
+            "Type": lap.get("name", "—"),
+            "Distance (km)": round(lap["distance"] / 1000, 2),
+            "Temps (min)": round(lap["elapsed_time"] / 60, 1),
+            "FC Moy": lap.get("average_heartrate"),
+            "FC Max": lap.get("max_heartrate"),
+            "Allure (min/km)": round((lap["elapsed_time"] / 60) / (lap["distance"] / 1000), 2) if lap["distance"] > 0 else None
+        } for i, lap in enumerate(laps_data)])
+
+        st.dataframe(df_laps)
+    else:
+        st.error("Impossible de récupérer les laps depuis l’API Strava.")
+        st.text(res.text)
+        
         df_tempo = df[df["Description"].str.contains("Tempo", case=False, na=False)]
         if not df_tempo.empty:
             st.dataframe(df_tempo[["Date_affichée", "Nom", "Description", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max"]])
