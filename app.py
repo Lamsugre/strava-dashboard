@@ -58,18 +58,26 @@ def refresh_access_token():
     res.raise_for_status()
     return res.json()["access_token"]
 
-def get_strava_activities(access_token, num_activities=50):
+def def get_strava_activities(access_token, num_activities=50):
     url = f"https://www.strava.com/api/v3/athlete/activities"
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {"per_page": num_activities, "page": 1}
     res = requests.get(url, headers=headers, params=params)
     res.raise_for_status()
-    return res.json()
+    activities = res.json()
 
-@st.cache_data(ttl=1800)
-def get_activities_cached():
-    access_token = refresh_access_token()
-    return get_strava_activities(access_token)
+    # 🔁 Récupérer la description de chaque activité
+    detailed_activities = []
+    for act in activities:
+        activity_id = act["id"]
+        detail_url = f"https://www.strava.com/api/v3/activities/{activity_id}"
+        detail_res = requests.get(detail_url, headers=headers)
+        detail_res.raise_for_status()
+        detail_data = detail_res.json()
+        act["description"] = detail_data.get("description", "")
+        detailed_activities.append(act)
+
+    return detailed_activities
 
 def appel_chatgpt_conseil(prompt, df_activites, df_plan):
     plan_resume = df_plan.head(3).to_string(index=False)
@@ -125,6 +133,7 @@ if activities and isinstance(activities, list):
         "FC Max": act.get("max_heartrate"),
         "Date": act["start_date_local"][:10],
         "Type": act.get("type", "—")
+        "Description": act.get("description", "")
     } for act in activities])
 
     df["Date"] = pd.to_datetime(df["Date"])
