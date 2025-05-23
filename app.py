@@ -59,13 +59,15 @@ def refresh_access_token():
     return res.json()["access_token"]
 
 def get_strava_activities(access_token, num_activities=50):
-    url = f"https://www.strava.com/api/v3/athlete/activities"
+    url = "https://www.strava.com/api/v3/athlete/activities"
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {"per_page": num_activities, "page": 1}
     res = requests.get(url, headers=headers, params=params)
+    
     if res.status_code == 429:
-        st.error("🚨 Trop de requêtes envoyées à Strava. Attends quelques minutes et réessaie.")
+        st.warning("⏱️ Tu as atteint la limite de requêtes Strava. Réessaie dans quelques minutes.")
         return []
+    
     res.raise_for_status()
     return res.json()
 
@@ -122,13 +124,14 @@ page = st.sidebar.radio("📂 Choisir une vue", ["🏠 Tableau général", "💥
 activities = st.session_state.get("activities", None)
 
 st.subheader("📅 Actualisation des données")
+
 if st.button("📥 Actualiser mes données Strava"):
     try:
         activities = get_activities_cached()
         st.session_state["activities"] = activities
-        st.success("Données Strava mises à jour avec succès.")
+        st.success("Données mises à jour.")
     except Exception as e:
-        st.error("Erreur lors de la récupération des données.")
+        st.error("Erreur pendant la mise à jour.")
         st.exception(e)
 
 if activities and isinstance(activities, list):
