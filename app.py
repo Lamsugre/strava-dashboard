@@ -156,33 +156,33 @@ with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
     question = st.text_area("Ta question au coach :", key="chat_input", height=120)
     if st.button("💬 Envoyer au coach IA"):
-    if activities and isinstance(activities, list):
-        try:
-            df = pd.DataFrame([{
-                "Nom": act.get("name", "—"),
-                "Distance (km)": round(act["distance"] / 1000, 2),
-                "Durée (min)": round(act["elapsed_time"] / 60, 1),
-                "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
-                "FC Moyenne": act.get("average_heartrate"),
-                "FC Max": act.get("max_heartrate"),
-                "Date": act["start_date_local"][:10],
-                "Type": act.get("type", "—"),
-                "Description": act.get("description", "")
-            } for act in activities])
+        if activities and isinstance(activities, list):
+            try:
+                df = pd.DataFrame([{
+                    "Nom": act.get("name", "—"),
+                    "Distance (km)": round(act["distance"] / 1000, 2),
+                    "Durée (min)": round(act["elapsed_time"] / 60, 1),
+                    "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
+                    "FC Moyenne": act.get("average_heartrate"),
+                    "FC Max": act.get("max_heartrate"),
+                    "Date": act["start_date_local"][:10],
+                    "Type": act.get("type", "—"),
+                    "Description": act.get("description", "")
+                } for act in activities])
 
-            df["Date"] = pd.to_datetime(df["Date"])
-            df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
-            df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
+                df["Date"] = pd.to_datetime(df["Date"])
+                df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
+                df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
 
-            reponse = appel_chatgpt_conseil(question.strip(), df, df_plan)
-            st.markdown("---")
-            st.markdown("**Réponse du coach :**")
-            st.markdown(reponse)
-        except Exception as e:
-            st.error("❌ Erreur dans l’appel à l’IA.")
-            st.exception(e)
-    else:
-        st.warning("⚠️ Les données Strava ne sont pas encore chargées. Actualise les données avant de poser une question.")
+                reponse = appel_chatgpt_conseil(question.strip(), df, df_plan)
+                st.markdown("---")
+                st.markdown("**Réponse du coach :**")
+                st.markdown(reponse)
+            except Exception as e:
+                st.error("❌ Erreur dans l’appel à l’IA.")
+                st.exception(e)
+        else:
+            st.warning("⚠️ Les données Strava ne sont pas encore chargées. Actualise les données avant de poser une question.")
 # Page selector
 page = st.sidebar.radio("📂 Choisir une vue", ["🏠 Tableau général", "💥 Analyse Fractionné"])
 
