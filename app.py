@@ -58,47 +58,38 @@ def refresh_access_token():
     res.raise_for_status()
     return res.json()["access_token"]
 
-def get_strava_activities(access_token, num_activities=50):
+def get_strava_activities(access_token, num_activities=50, max_detailed=5):
     url = "https://www.strava.com/api/v3/athlete/activities"
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {"per_page": num_activities, "page": 1}
     res = requests.get(url, headers=headers, params=params)
-    
+
     if res.status_code == 429:
         st.warning("⏱️ Tu as atteint la limite de requêtes Strava. Réessaie dans quelques minutes.")
         return []
-    
-    res.raise_for_status()
-    return res.json()
 
-    # 🔁 Récupérer la description de chaque activité
+    res.raise_for_status()
+    activities = res.json()
+
     detailed_activities = []
-    for act in activities:
+    for i, act in enumerate(activities):
+        if i >= max_detailed:
+            act["description"] = ""
+            detailed_activities.append(act)
+            continue
+
         activity_id = act["id"]
         detail_url = f"https://www.strava.com/api/v3/activities/{activity_id}"
         detail_res = requests.get(detail_url, headers=headers)
+        if detail_res.status_code == 429:
+            st.warning("Limite de requêtes atteinte pendant les détails. Interruption du chargement détaillé.")
+            break
         detail_res.raise_for_status()
         detail_data = detail_res.json()
         act["description"] = detail_data.get("description", "")
         detailed_activities.append(act)
 
     return detailed_activities
-
-def appel_chatgpt_conseil(prompt, df_activites, df_plan):
-    plan_resume = df_plan.head(3).to_string(index=False)
-    activites_resume = df_activites.head(3).to_string(index=False)
-    system_msg = "Tu es un coach sportif intelligent. Rédige un retour clair, synthétique et utile en te basant sur les dernières performances Strava et les séances prévues."
-    user_msg = f"""Voici les séances prévues:\n{plan_resume}\n\nVoici les séances réalisées:\n{activites_resume}\n\nQuestion: {prompt}"""
-    client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": system_msg},
-            {"role": "user", "content": user_msg}
-        ],
-        temperature=0.7
-    )
-    return response.choices[0].message.content
 
 def commit_to_github(updated_text):
     g = Github(github_token)
