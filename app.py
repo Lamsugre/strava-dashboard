@@ -163,6 +163,66 @@ if activities and isinstance(activities, list):
             width=700, height=400
         )
         st.altair_chart(chart)
+        st.subheader("🗓️ Mon plan d'entraînement")
+        today = datetime.datetime.now().date()
+        plan_du_jour = df_plan[df_plan["date"] >= pd.to_datetime(today)].head(6)
+        plan_du_jour_display = plan_du_jour.copy()
+        plan_du_jour_display["date"] = plan_du_jour_display["date"].dt.strftime("%d/%m/%Y")
+        plan_du_jour_display["phases"] = plan_du_jour_display["phases"].apply(
+            lambda p: " | ".join([f"{ph.get('nom', '')}: {ph.get('contenu', str(ph.get('durée_min', '')) + ' min')}" for ph in p])
+        )
+        st.dataframe(plan_du_jour_display)
+    
+        st.subheader("🧩 Détail des séances à venir")
+        for _, row in plan_du_jour.iterrows():
+            with st.expander(f"{row['date'].strftime('%d/%m/%Y')} - {row['type'].capitalize()} ({row['jour']})"):
+                for phase in row['phases']:
+                    nom = phase.get("nom", "")
+                    contenu = phase.get("contenu") or f"{phase.get('durée_min', '')} min"
+                    st.markdown(f"**{nom.capitalize()}** → {contenu}")
+    
+        st.markdown("---")
+        st.subheader("🛠️ Modifier mon plan avec l'IA")
+        edit_prompt = st.text_area("Décris le changement souhaité", key="edit_prompt")
+    
+        if st.button("💬 Générer une proposition de modification IA"):
+            try:
+                instruction_modif = f"Voici le plan actuel:\n{df_plan.to_string(index=False)}\n\nVoici la demande:\n{edit_prompt}\n\nPropose uniquement UNE séance modifiée sous forme d'un objet JSON valide (ne réponds que par le JSON sans explication)."
+                client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+                response = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "Tu es un assistant expert en entraînement de course à pied. Tu modifies le plan d'entraînement au format JSON."},
+                        {"role": "user", "content": instruction_modif}
+                    ],
+                    temperature=0.4
+                )
+                json_proposal = response.choices[0].message.content
+                st.session_state["last_json_modif"] = json_proposal
+                st.code(json_proposal, language="json")
+            except Exception as e:
+                st.error("Erreur lors de la génération par l'IA.")
+                st.exception(e)
+
+    if "last_json_modif" in st.session_state and st.button("✅ Appliquer cette modification au fichier"):
+        try:
+            new_obj = json.loads(st.session_state["last_json_modif"])
+            df_plan["date"] = pd.to_datetime(df_plan["date"])
+            df_plan.set_index("date", inplace=True)
+            new_date = pd.to_datetime(new_obj["date"])
+            df_plan.loc[new_date] = new_obj
+            df_plan.reset_index(inplace=True)
+            df_plan.sort_values(by="date", inplace=True)
+
+            final_text = json.dumps(df_plan.to_dict(orient="records"), indent=2, ensure_ascii=False, default=str)
+            with open(PLAN_PATH, "w", encoding="utf-8") as f:
+                f.write(final_text)
+            commit_to_github(final_text)
+            st.success("✅ Plan mis à jour et synchronisé avec GitHub.")
+            st.rerun()
+        except Exception as e:
+            st.error("❌ Erreur lors de l'application de la modification.")
+            st.exception(e)
 
     elif page == "💥 Analyse Fractionné":
         st.subheader("💥 Analyse des séances de fractionné")
