@@ -1,1099 +1,1206 @@
-[
-  {
-    "date": "2025-06-09 00:00:00",
-    "semaine": 1,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "récupération active",
-        "durée_min": 10,
-        "zone": "Z1"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "4 × 200m à 4:00/km",
-        "récup": "45 sec entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      },
-      {
-        "nom": "étirements",
-        "durée_min": 10
-      }
+{
+    "weeks": [
+        {
+            "week": "26 May - 1 Jun",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 8x40sec",
+                    "type": "High intensity",
+                    "duration_min": 40,
+                    "distance_km": 7,
+                    "details": {
+                        "warmup": "25min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "8x40sec @ 3:49/km (186 bpm) with 40sec rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Easy run 50min",
+                    "type": "Low intensity",
+                    "duration_min": 50,
+                    "distance_km": 8,
+                    "details": {
+                        "run": "50min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr",
+                    "type": "Low intensity",
+                    "duration_min": 60,
+                    "distance_km": 10,
+                    "details": {
+                        "run": "60min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "2 Jun - 8 Jun",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 8x50sec",
+                    "type": "High intensity",
+                    "duration_min": 43,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "25min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "8x50sec @ 3:49/km (186 bpm) with 50sec rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 50min",
+                    "type": "Moderate intensity",
+                    "duration_min": 50,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "50min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr10",
+                    "type": "Low intensity",
+                    "duration_min": 70,
+                    "distance_km": 12,
+                    "details": {
+                        "run": "70min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "9 Jun - 15 Jun",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "10k pace: 5x3min",
+                    "type": "High intensity",
+                    "duration_min": 48,
+                    "distance_km": 9,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "5x3min @ 4:21/km (171 bpm) with 2min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 10,
+                    "details": {
+                        "run": "55min @ 5:15-5:30/km (145-152 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr15",
+                    "type": "Low intensity",
+                    "duration_min": 75,
+                    "distance_km": 13,
+                    "details": {
+                        "run": "75min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "16 Jun - 22 Jun",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 10x45sec",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "10x45sec @ 3:45/km (188 bpm) with 45sec rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 50min",
+                    "type": "Moderate intensity",
+                    "duration_min": 50,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "50min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr20",
+                    "type": "Low intensity",
+                    "duration_min": 80,
+                    "distance_km": 14,
+                    "details": {
+                        "run": "80min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "23 Jun - 29 Jun",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 7x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "7x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 75min",
+                    "type": "Low intensity",
+                    "duration_min": 75,
+                    "distance_km": 13,
+                    "details": {
+                        "run": "75min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "30 Jun - 06 Jul",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 8x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "8x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 80min",
+                    "type": "Low intensity",
+                    "duration_min": 80,
+                    "distance_km": 14,
+                    "details": {
+                        "run": "80min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "07 Jul - 13 Jul",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 9x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "9x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 85min",
+                    "type": "Low intensity",
+                    "duration_min": 85,
+                    "distance_km": 15,
+                    "details": {
+                        "run": "85min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "14 Jul - 20 Jul",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Easy run 45min",
+                    "type": "Low intensity",
+                    "duration_min": 45,
+                    "distance_km": 7,
+                    "details": {
+                        "run": "45min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Easy run 50min",
+                    "type": "Low intensity",
+                    "duration_min": 50,
+                    "distance_km": 8,
+                    "details": {
+                        "run": "50min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr",
+                    "type": "Low intensity",
+                    "duration_min": 60,
+                    "distance_km": 10,
+                    "details": {
+                        "run": "60min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "21 Jul - 27 Jul",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 7x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "7x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 75min",
+                    "type": "Low intensity",
+                    "duration_min": 75,
+                    "distance_km": 13,
+                    "details": {
+                        "run": "75min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "28 Jul - 03 Aug",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 8x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "8x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 80min",
+                    "type": "Low intensity",
+                    "duration_min": 80,
+                    "distance_km": 14,
+                    "details": {
+                        "run": "80min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "04 Aug - 10 Aug",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 9x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "9x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 85min",
+                    "type": "Low intensity",
+                    "duration_min": 85,
+                    "distance_km": 15,
+                    "details": {
+                        "run": "85min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "11 Aug - 17 Aug",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Easy run 45min",
+                    "type": "Low intensity",
+                    "duration_min": 45,
+                    "distance_km": 7,
+                    "details": {
+                        "run": "45min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Easy run 50min",
+                    "type": "Low intensity",
+                    "duration_min": 50,
+                    "distance_km": 8,
+                    "details": {
+                        "run": "50min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr",
+                    "type": "Low intensity",
+                    "duration_min": 60,
+                    "distance_km": 10,
+                    "details": {
+                        "run": "60min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "18 Aug - 24 Aug",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 7x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "7x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 75min",
+                    "type": "Low intensity",
+                    "duration_min": 75,
+                    "distance_km": 13,
+                    "details": {
+                        "run": "75min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "25 Aug - 31 Aug",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 8x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "8x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 80min",
+                    "type": "Low intensity",
+                    "duration_min": 80,
+                    "distance_km": 14,
+                    "details": {
+                        "run": "80min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "01 Sep - 07 Sep",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 9x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "9x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 85min",
+                    "type": "Low intensity",
+                    "duration_min": 85,
+                    "distance_km": 15,
+                    "details": {
+                        "run": "85min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "08 Sep - 14 Sep",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Easy run 45min",
+                    "type": "Low intensity",
+                    "duration_min": 45,
+                    "distance_km": 7,
+                    "details": {
+                        "run": "45min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Easy run 50min",
+                    "type": "Low intensity",
+                    "duration_min": 50,
+                    "distance_km": 8,
+                    "details": {
+                        "run": "50min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr",
+                    "type": "Low intensity",
+                    "duration_min": 60,
+                    "distance_km": 10,
+                    "details": {
+                        "run": "60min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "15 Sep - 21 Sep",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 7x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "7x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 75min",
+                    "type": "Low intensity",
+                    "duration_min": 75,
+                    "distance_km": 13,
+                    "details": {
+                        "run": "75min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "22 Sep - 28 Sep",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 8x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "8x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 80min",
+                    "type": "Low intensity",
+                    "duration_min": 80,
+                    "distance_km": 14,
+                    "details": {
+                        "run": "80min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "29 Sep - 05 Oct",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 9x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "9x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 85min",
+                    "type": "Low intensity",
+                    "duration_min": 85,
+                    "distance_km": 15,
+                    "details": {
+                        "run": "85min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "06 Oct - 12 Oct",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Easy run 45min",
+                    "type": "Low intensity",
+                    "duration_min": 45,
+                    "distance_km": 7,
+                    "details": {
+                        "run": "45min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Easy run 50min",
+                    "type": "Low intensity",
+                    "duration_min": 50,
+                    "distance_km": 8,
+                    "details": {
+                        "run": "50min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr",
+                    "type": "Low intensity",
+                    "duration_min": 60,
+                    "distance_km": 10,
+                    "details": {
+                        "run": "60min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "13 Oct - 19 Oct",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 7x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "7x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 75min",
+                    "type": "Low intensity",
+                    "duration_min": 75,
+                    "distance_km": 13,
+                    "details": {
+                        "run": "75min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "20 Oct - 26 Oct",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 8x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "8x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 80min",
+                    "type": "Low intensity",
+                    "duration_min": 80,
+                    "distance_km": 14,
+                    "details": {
+                        "run": "80min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "27 Oct - 02 Nov",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 9x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "9x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 85min",
+                    "type": "Low intensity",
+                    "duration_min": 85,
+                    "distance_km": 15,
+                    "details": {
+                        "run": "85min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "03 Nov - 09 Nov",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Easy run 45min",
+                    "type": "Low intensity",
+                    "duration_min": 45,
+                    "distance_km": 7,
+                    "details": {
+                        "run": "45min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Easy run 50min",
+                    "type": "Low intensity",
+                    "duration_min": 50,
+                    "distance_km": 8,
+                    "details": {
+                        "run": "50min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr",
+                    "type": "Low intensity",
+                    "duration_min": 60,
+                    "distance_km": 10,
+                    "details": {
+                        "run": "60min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "10 Nov - 16 Nov",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 7x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "7x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 75min",
+                    "type": "Low intensity",
+                    "duration_min": 75,
+                    "distance_km": 13,
+                    "details": {
+                        "run": "75min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "17 Nov - 23 Nov",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 8x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "8x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 80min",
+                    "type": "Low intensity",
+                    "duration_min": 80,
+                    "distance_km": 14,
+                    "details": {
+                        "run": "80min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "24 Nov - 30 Nov",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 9x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "9x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 85min",
+                    "type": "Low intensity",
+                    "duration_min": 85,
+                    "distance_km": 15,
+                    "details": {
+                        "run": "85min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "01 Dec - 07 Dec",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Easy run 45min",
+                    "type": "Low intensity",
+                    "duration_min": 45,
+                    "distance_km": 7,
+                    "details": {
+                        "run": "45min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Easy run 50min",
+                    "type": "Low intensity",
+                    "duration_min": 50,
+                    "distance_km": 8,
+                    "details": {
+                        "run": "50min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr",
+                    "type": "Low intensity",
+                    "duration_min": 60,
+                    "distance_km": 10,
+                    "details": {
+                        "run": "60min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "08 Dec - 14 Dec",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 7x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "7x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 75min",
+                    "type": "Low intensity",
+                    "duration_min": 75,
+                    "distance_km": 13,
+                    "details": {
+                        "run": "75min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "15 Dec - 21 Dec",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 8x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "8x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 80min",
+                    "type": "Low intensity",
+                    "duration_min": 80,
+                    "distance_km": 14,
+                    "details": {
+                        "run": "80min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "22 Dec - 28 Dec",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Intervals 9x1min",
+                    "type": "High intensity",
+                    "duration_min": 45,
+                    "distance_km": 8,
+                    "details": {
+                        "warmup": "20min @ 5:50-6:10/km (133-142 bpm)",
+                        "intervals": "9x1min @ 4:00/km with 1min rest",
+                        "cooldown": "5min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Steady run 55min",
+                    "type": "Moderate intensity",
+                    "duration_min": 55,
+                    "distance_km": 9,
+                    "details": {
+                        "run": "55min @ 5:20-5:30/km (143-150 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 85min",
+                    "type": "Low intensity",
+                    "duration_min": 85,
+                    "distance_km": 15,
+                    "details": {
+                        "run": "85min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "29 Dec - 04 Jan",
+            "sessions": [
+                {
+                    "day": "Monday",
+                    "name": "Easy run 45min",
+                    "type": "Low intensity",
+                    "duration_min": 45,
+                    "distance_km": 7,
+                    "details": {
+                        "run": "45min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Wednesday",
+                    "name": "Easy run 50min",
+                    "type": "Low intensity",
+                    "duration_min": 50,
+                    "distance_km": 8,
+                    "details": {
+                        "run": "50min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                },
+                {
+                    "day": "Saturday",
+                    "name": "Easy run 1hr",
+                    "type": "Low intensity",
+                    "duration_min": 60,
+                    "distance_km": 10,
+                    "details": {
+                        "run": "60min @ 5:50-6:10/km (133-142 bpm)"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "23 Jun - 29 Jun",
+            "sessions": [
+                {
+                    "day": "Sunday",
+                    "name": "Course des 15 km de Versailles",
+                    "type": "Event",
+                    "duration_min": 90,
+                    "distance_km": 15,
+                    "details": {
+                        "goal": "Sortie longue int\u00e9gr\u00e9e sans chercher de RP",
+                        "estimated_pace": "5:50/km"
+                    }
+                }
+            ]
+        },
+        {
+            "week": "13 Oct - 19 Oct",
+            "sessions": [
+                {
+                    "day": "Sunday",
+                    "name": "Semi-marathon de Vincennes",
+                    "type": "Event",
+                    "duration_min": 98,
+                    "distance_km": 21.1,
+                    "details": {
+                        "goal": "Objectif battre le PB de 1h38",
+                        "target_pace": "4:38/km"
+                    }
+                }
+            ]
+        }
     ]
-  },
-  {
-    "date": "2025-06-11 00:00:00",
-    "semaine": 1,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-06-14 00:00:00",
-    "semaine": 1,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-06-16 00:00:00",
-    "semaine": 2,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-06-18 00:00:00",
-    "semaine": 2,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-06-21 00:00:00",
-    "semaine": 2,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-06-23 00:00:00",
-    "semaine": 3,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-06-25 00:00:00",
-    "semaine": 3,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-06-28 00:00:00",
-    "semaine": 3,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-06-30 00:00:00",
-    "semaine": 4,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-07-02 00:00:00",
-    "semaine": 4,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-07-05 00:00:00",
-    "semaine": 4,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-07-07 00:00:00",
-    "semaine": 5,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-07-09 00:00:00",
-    "semaine": 5,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-07-12 00:00:00",
-    "semaine": 5,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-07-14 00:00:00",
-    "semaine": 6,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-07-16 00:00:00",
-    "semaine": 6,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-07-19 00:00:00",
-    "semaine": 6,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-07-21 00:00:00",
-    "semaine": 7,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-07-23 00:00:00",
-    "semaine": 7,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-07-26 00:00:00",
-    "semaine": 7,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-07-28 00:00:00",
-    "semaine": 8,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-07-30 00:00:00",
-    "semaine": 8,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-08-02 00:00:00",
-    "semaine": 8,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-08-04 00:00:00",
-    "semaine": 9,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-08-06 00:00:00",
-    "semaine": 9,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-08-09 00:00:00",
-    "semaine": 9,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-08-11 00:00:00",
-    "semaine": 10,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-08-13 00:00:00",
-    "semaine": 10,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-08-16 00:00:00",
-    "semaine": 10,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-08-18 00:00:00",
-    "semaine": 11,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-08-20 00:00:00",
-    "semaine": 11,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-08-23 00:00:00",
-    "semaine": 11,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-08-25 00:00:00",
-    "semaine": 12,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-08-27 00:00:00",
-    "semaine": 12,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-08-30 00:00:00",
-    "semaine": 12,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-09-01 00:00:00",
-    "semaine": 13,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-09-03 00:00:00",
-    "semaine": 13,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-09-06 00:00:00",
-    "semaine": 13,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-09-08 00:00:00",
-    "semaine": 14,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-09-10 00:00:00",
-    "semaine": 14,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-09-13 00:00:00",
-    "semaine": 14,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-09-15 00:00:00",
-    "semaine": 15,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-09-17 00:00:00",
-    "semaine": 15,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-09-20 00:00:00",
-    "semaine": 15,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-09-22 00:00:00",
-    "semaine": 16,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-09-24 00:00:00",
-    "semaine": 16,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-09-27 00:00:00",
-    "semaine": 16,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-09-29 00:00:00",
-    "semaine": 17,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-10-01 00:00:00",
-    "semaine": 17,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-10-04 00:00:00",
-    "semaine": 17,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-10-06 00:00:00",
-    "semaine": 18,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-10-08 00:00:00",
-    "semaine": 18,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-10-11 00:00:00",
-    "semaine": 18,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  },
-  {
-    "date": "2025-10-13 00:00:00",
-    "semaine": 19,
-    "jour": "lundi",
-    "type": "fractionné",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 20,
-        "zone": "EF",
-        "cible": "133–143 bpm"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "6 × 400m à 4:15/km",
-        "récup": "1 min entre chaque"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10,
-        "zone": "Z1"
-      }
-    ]
-  },
-  {
-    "date": "2025-10-15 00:00:00",
-    "semaine": 19,
-    "jour": "mercredi",
-    "type": "tempo",
-    "phases": [
-      {
-        "nom": "échauffement",
-        "durée_min": 15,
-        "zone": "EF"
-      },
-      {
-        "nom": "bloc",
-        "contenu": "30 min à 4:45/km"
-      },
-      {
-        "nom": "retour au calme",
-        "durée_min": 10
-      }
-    ]
-  },
-  {
-    "date": "2025-10-18 00:00:00",
-    "semaine": 19,
-    "jour": "samedi",
-    "type": "sortie longue",
-    "phases": [
-      {
-        "nom": "bloc",
-        "contenu": "12 km à 5:30–5:45/km"
-      }
-    ]
-  }
-]
+}
