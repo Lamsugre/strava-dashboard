@@ -137,16 +137,19 @@ Réponds de manière claire, utile et personnalisée.
 """
 
     # Appel à l’API OpenAI
-    response = openai.ChatCompletion.create(
+    from openai import OpenAI
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "Tu es un coach sportif expert en préparation marathon."},
             {"role": "user", "content": prompt}
         ],
         temperature=0.6,
-    )
+    )   
 
-    return response["choices"][0]["message"]["content"]
+    return response.choices[0].message.content
 @st.cache_data(ttl=1800)
 def get_activities_cached():
     access_token = refresh_access_token()
