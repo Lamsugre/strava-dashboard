@@ -27,7 +27,7 @@ def check_password():
 
 check_password()
 
-st.title("\ud83c\udfc3 Dashbord - AI Coach X")
+st.title("🏃 Dashbord - AI Coach X")
 
 client_id = st.secrets["STRAVA_CLIENT_ID"]
 client_secret = st.secrets["STRAVA_CLIENT_SECRET"]
