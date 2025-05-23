@@ -132,7 +132,7 @@ if activities and isinstance(activities, list):
         "FC Moyenne": act.get("average_heartrate"),
         "FC Max": act.get("max_heartrate"),
         "Date": act["start_date_local"][:10],
-        "Type": act.get("type", "—")
+        "Type": act.get("type", "—"),
         "Description": act.get("description", "")
     } for act in activities])
 
