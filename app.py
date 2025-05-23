@@ -239,7 +239,7 @@ if activities and isinstance(activities, list):
             st.exception(e)
 
     elif page == "💥 Analyse Fractionné":
-        st.subheader("💥 Analyse des séances de fractionné")
+    st.subheader("🧩 Laps de la séance du 19/05/2025")
         
     # Appel API Strava pour récupérer les laps
     activity_id = "14527571757"
