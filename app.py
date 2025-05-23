@@ -9,6 +9,8 @@ import openai
 import base64
 from github import Github
 
+if page == "🏠 Tableau général":
+    # Ton contenu actuel
 # 🔐 Protection par mot de passe simple
 def check_password():
     def password_entered():
@@ -37,6 +39,9 @@ github_token = st.secrets["GITHUB_TOKEN"]
 github_repo = st.secrets["GITHUB_REPO"]
 
 PLAN_PATH = "plan_semi_vincennes_2025.json"
+
+
+
 
 if os.path.exists(PLAN_PATH):
     with open(PLAN_PATH, "r", encoding="utf-8") as f:
@@ -221,7 +226,17 @@ if activities and isinstance(activities, list):
         except Exception as e:
             st.error("❌ Erreur lors de l'application de la modification.")
             st.exception(e)
-
+    elif page == "💥 Analyse Fractionné":
+        st.subheader("💥 Analyse des séances de fractionné")
+    
+        # Filtrage des activités "interval" / "workout"
+        df_intervals = df[df["Type"].isin(["Workout", "Run"])]  # à affiner avec des tags ou nom de séance
+        df_fractions = df_intervals[df_intervals["Nom"].str.contains("fractionné|VMA|10x|interv", case=False, na=False)]
+    
+        st.dataframe(df_fractions[["Date_affichée", "Nom", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max"]])
+    
+        # Option : Sélection d’une séance pour afficher ses laps
+        selected = st.selectbox("Choisis une séance à analyser :", df_fractions["Nom"].tolist())
 with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
     if activities and isinstance(activities, list):
