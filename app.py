@@ -218,58 +218,58 @@ if activities and isinstance(activities, list):
                 st.error("Erreur lors de la génération par l'IA.")
                 st.exception(e)
 
-    if "last_json_modif" in st.session_state and st.button("✅ Appliquer cette modification au fichier"):
-        try:
-            new_obj = json.loads(st.session_state["last_json_modif"])
-            df_plan["date"] = pd.to_datetime(df_plan["date"])
-            df_plan.set_index("date", inplace=True)
-            new_date = pd.to_datetime(new_obj["date"])
-            df_plan.loc[new_date] = new_obj
-            df_plan.reset_index(inplace=True)
-            df_plan.sort_values(by="date", inplace=True)
+            if "last_json_modif" in st.session_state and st.button("✅ Appliquer cette modification au fichier"):
+                try:
+                    new_obj = json.loads(st.session_state["last_json_modif"])
+                    df_plan["date"] = pd.to_datetime(df_plan["date"])
+                    df_plan.set_index("date", inplace=True)
+                    new_date = pd.to_datetime(new_obj["date"])
+                    df_plan.loc[new_date] = new_obj
+                    df_plan.reset_index(inplace=True)
+                    df_plan.sort_values(by="date", inplace=True)
 
-            final_text = json.dumps(df_plan.to_dict(orient="records"), indent=2, ensure_ascii=False, default=str)
-            with open(PLAN_PATH, "w", encoding="utf-8") as f:
-                f.write(final_text)
-            commit_to_github(final_text)
-            st.success("✅ Plan mis à jour et synchronisé avec GitHub.")
-            st.rerun()
-        except Exception as e:
-            st.error("❌ Erreur lors de l'application de la modification.")
-            st.exception(e)
+                    final_text = json.dumps(df_plan.to_dict(orient="records"), indent=2, ensure_ascii=False, default=str)
+                    with open(PLAN_PATH, "w", encoding="utf-8") as f:
+                        f.write(final_text)
+                    commit_to_github(final_text)
+                    st.success("✅ Plan mis à jour et synchronisé avec GitHub.")
+                    st.rerun()
+                except Exception as e:
+                    st.error("❌ Erreur lors de l'application de la modification.")
+                    st.exception(e)
 
     elif page == "💥 Analyse Fractionné":
-    st.subheader("🧩 Laps de la séance du 19/05/2025")
-        
-    # Appel API Strava pour récupérer les laps
-    activity_id = "14527571757"
-    access_token = refresh_access_token()
-    url_laps = f"https://www.strava.com/api/v3/activities/{activity_id}/laps"
-    headers = {"Authorization": f"Bearer {access_token}"}
-    res = requests.get(url_laps, headers=headers)
-    
-    if res.status_code == 200:
-        laps_data = res.json()
-        df_laps = pd.DataFrame([{
-            "Lap": i + 1,
-            "Type": lap.get("name", "—"),
-            "Distance (km)": round(lap["distance"] / 1000, 2),
-            "Temps (min)": round(lap["elapsed_time"] / 60, 1),
-            "FC Moy": lap.get("average_heartrate"),
-            "FC Max": lap.get("max_heartrate"),
-            "Allure (min/km)": round((lap["elapsed_time"] / 60) / (lap["distance"] / 1000), 2) if lap["distance"] > 0 else None
-        } for i, lap in enumerate(laps_data)])
+        st.subheader("🧩 Laps de la séance du 19/05/2025")
 
-        st.dataframe(df_laps)
-    else:
-        st.error("Impossible de récupérer les laps depuis l’API Strava.")
-        st.text(res.text)
+        # Appel API Strava pour récupérer les laps
+        activity_id = "14527571757"
+        access_token = refresh_access_token()
+        url_laps = f"https://www.strava.com/api/v3/activities/{activity_id}/laps"
+        headers = {"Authorization": f"Bearer {access_token}"}
+        res = requests.get(url_laps, headers=headers)
         
-        df_tempo = df[df["Description"].str.contains("Tempo", case=False, na=False)]
-        if not df_tempo.empty:
-            st.dataframe(df_tempo[["Date_affichée", "Nom", "Description", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max"]])
+        if res.status_code == 200:
+            laps_data = res.json()
+            df_laps = pd.DataFrame([{
+                "Lap": i + 1,
+                "Type": lap.get("name", "—"),
+                "Distance (km)": round(lap["distance"] / 1000, 2),
+                "Temps (min)": round(lap["elapsed_time"] / 60, 1),
+                "FC Moy": lap.get("average_heartrate"),
+                "FC Max": lap.get("max_heartrate"),
+                "Allure (min/km)": round((lap["elapsed_time"] / 60) / (lap["distance"] / 1000), 2) if lap["distance"] > 0 else None
+            } for i, lap in enumerate(laps_data)])
+
+            st.dataframe(df_laps)
         else:
-            st.info("Aucune séance 'tempo' détectée dans les descriptions Strava.")
+            st.error("Impossible de récupérer les laps depuis l’API Strava.")
+            st.text(res.text)
+            
+            df_tempo = df[df["Description"].str.contains("Tempo", case=False, na=False)]
+            if not df_tempo.empty:
+                st.dataframe(df_tempo[["Date_affichée", "Nom", "Description", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max"]])
+            else:
+                st.info("Aucune séance 'tempo' détectée dans les descriptions Strava.")
 
 with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
