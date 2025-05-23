@@ -275,10 +275,10 @@ with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
     if activities and isinstance(activities, list):
         question = st.text_area("Ta question au coach :", key="chat_input", height=120)
-        if question:
-            reponse = appel_chatgpt_conseil(question, df, df_plan)
-            st.markdown("---")
-            st.markdown("**Réponse du coach :**")
-            st.markdown(reponse)
+    if st.button("💬 Envoyer au coach IA") and question.strip():
+        reponse = appel_chatgpt_conseil(question.strip(), df, df_plan)
+        st.markdown("---")
+        st.markdown("**Réponse du coach :**")
+        st.markdown(reponse)
     else:
         st.markdown("⚠️ Données Strava non disponibles.")
