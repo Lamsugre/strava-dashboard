@@ -240,7 +240,7 @@ if activities and isinstance(activities, list):
 
     elif page == "💥 Analyse Fractionné":
         st.subheader("💥 Analyse des séances de fractionné")
-        df_tempo = df[df["Description"].str.contains("tempo", case=False, na=False)]
+        df_tempo = df[df["Description"].str.contains("Tempo", case=False, na=False)]
         if not df_tempo.empty:
             st.dataframe(df_tempo[["Date_affichée", "Nom", "Description", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max"]])
         else:
