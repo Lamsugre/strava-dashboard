@@ -63,8 +63,11 @@ def get_strava_activities(access_token, num_activities=50):
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {"per_page": num_activities, "page": 1}
     res = requests.get(url, headers=headers, params=params)
+    if res.status_code == 429:
+        st.error("🚨 Trop de requêtes envoyées à Strava. Attends quelques minutes et réessaie.")
+        return []
     res.raise_for_status()
-    activities = res.json()
+    return res.json()
 
     # 🔁 Récupérer la description de chaque activité
     detailed_activities = []
