@@ -7,6 +7,7 @@ import json
 import os
 import openai
 import base64
+import altair as alt
 from io import BytesIO
 
 from github import Github
@@ -318,6 +319,45 @@ if activities and isinstance(activities, list):
         if type_choisi != "Toutes":
             df = df[df["Type"] == type_choisi]
         st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
+       
+        st.subheader("📊 Visualiser la fréquence cardiaque")
+
+        # Charge le cache enrichi
+        df_cache = charger_cache_parquet()
+
+        # Fusion sur les ID disponibles dans les deux tableaux
+        df_merge = df.merge(df_cache[["id", "FC Stream", "Temps Stream"]], on="id", how="left")
+
+        # Sélecteur
+        selected_label = st.selectbox("Choisis une activité :", df_merge["Nom"] + " – " + df_merge["Date_affichée"])
+        selected_row = df_merge[df_merge["Nom"] + " – " + df_merge["Date_affichée"] == selected_label]
+
+        if not selected_row.empty:
+            fc_stream = selected_row.iloc[0]["FC Stream"]
+            time_stream = selected_row.iloc[0]["Temps Stream"]
+
+            if fc_stream and time_stream and len(fc_stream) == len(time_stream):
+                df_graph = pd.DataFrame({
+                    "Temps (s)": time_stream,
+                    "Fréquence cardiaque (bpm)": fc_stream
+                })
+
+                chart = alt.Chart(df_graph).mark_line(color="crimson").encode(
+                    x=alt.X("Temps (s)", title="Temps (s)", scale=alt.Scale(zero=False)),
+                    y=alt.Y("Fréquence cardiaque (bpm)", title="FC (bpm)", scale=alt.Scale(zero=False)),
+                    tooltip=["Temps (s)", "Fréquence cardiaque (bpm)"]
+                ).interactive().properties(
+                    width=700,
+                    height=300,
+                    title="Évolution de la FC pendant l'activité"
+                )
+
+                st.altair_chart(chart)
+            else:
+                st.info("Pas de données de fréquence cardiaque disponibles pour cette activité.")
+        else:
+            st.warning("Sélection invalide.")
+
 
         st.subheader("📈 Volume hebdomadaire & Allure moyenne")
         df_weekly = df.groupby("Semaine").agg({
