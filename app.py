@@ -145,6 +145,50 @@ def get_strava_activities(access_token, num_activities=50, max_detailed=5):
         detailed_activities.append(act)
 
     return detailed_activities
+def construire_dataframe_activites_complet(activities, access_token):
+    """
+    Construit un DataFrame enrichi avec les données classiques + fréquence cardiaque par minute.
+    """
+    rows = []
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    for act in activities:
+        row = {
+            "id": act.get("id"),
+            "Nom": act.get("name", "—"),
+            "Distance (km)": round(act.get("distance", 0) / 1000, 2),
+            "Durée (min)": round(act.get("elapsed_time", 0) / 60, 1),
+            "Allure (min/km)": round((act.get("elapsed_time", 0) / 60) / (act.get("distance", 1) / 1000), 2) if act.get("distance", 0) > 0 else None,
+            "FC Moyenne": act.get("average_heartrate"),
+            "FC Max": act.get("max_heartrate"),
+            "Date": act.get("start_date_local", "")[:10],
+            "Type": act.get("type", "—"),
+            "Description": act.get("description", "")
+        }
+
+        # Appel de l'API Strava pour récupérer le stream FC + temps
+        stream_url = f"https://www.strava.com/api/v3/activities/{act['id']}/streams"
+        params = {"keys": "heartrate,time", "key_by_type": "true"}
+        try:
+            stream_res = requests.get(stream_url, headers=headers, params=params)
+            if stream_res.status_code == 200:
+                stream_data = stream_res.json()
+                row["FC Stream"] = stream_data.get("heartrate", {}).get("data", [])
+                row["Temps Stream"] = stream_data.get("time", {}).get("data", [])
+            else:
+                row["FC Stream"] = []
+                row["Temps Stream"] = []
+        except Exception as e:
+            row["FC Stream"] = []
+            row["Temps Stream"] = []
+
+        rows.append(row)
+
+    df = pd.DataFrame(rows)
+    df["Date"] = pd.to_datetime(df["Date"])
+    df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
+    df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
+    return df
 
 def commit_to_github(updated_text):
     g = Github(github_token)
@@ -238,7 +282,9 @@ st.subheader("📅 Actualisation des données")
 if st.button("📥 Actualiser mes données Strava"):
     try:
         activities = get_activities_cached()
-        df_nouvelles = construire_dataframe_activites(activities)
+        access_token = refresh_access_token()
+        df_nouvelles = construire_dataframe_activites_complet(activities, access_token)
+
         mettre_a_jour_et_commit_cache_parquet(df_nouvelles)
 
         st.session_state["activities"] = activities
