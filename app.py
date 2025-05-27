@@ -7,6 +7,8 @@ import json
 import os
 import openai
 import base64
+from io import BytesIO
+
 from github import Github
 
 # 🔐 Protection par mot de passe simple
@@ -37,6 +39,8 @@ github_token = st.secrets["GITHUB_TOKEN"]
 github_repo = st.secrets["GITHUB_REPO"]
 
 PLAN_PATH = "plan_semi_vincennes_2025.json"
+CACHE_PARQUET_PATH = "data/strava_data_cache.parquet"
+
 
 if os.path.exists(PLAN_PATH):
     with open(PLAN_PATH, "r", encoding="utf-8") as f:
@@ -58,6 +62,44 @@ if os.path.exists(PLAN_PATH):
     df_plan = pd.DataFrame(records)
 else:
     df_plan = pd.DataFrame()
+def mettre_a_jour_et_commit_cache_parquet(new_activities_df):
+    if os.path.exists(CACHE_PARQUET_PATH):
+        df_cache = pd.read_parquet(CACHE_PARQUET_PATH)
+        ids_existants = set(df_cache["id"].astype(str))
+        df_nouvelles = new_activities_df[~new_activities_df["id"].astype(str).isin(ids_existants)]
+        df_final = pd.concat([df_cache, df_nouvelles], ignore_index=True)
+    else:
+        df_final = new_activities_df
+
+    # Écriture en local
+    df_final.to_parquet(CACHE_PARQUET_PATH, index=False)
+
+    # Préparation du buffer pour GitHub
+    buffer = BytesIO()
+    df_final.to_parquet(buffer, index=False)
+    buffer.seek(0)
+    content_encoded = base64.b64encode(buffer.read()).decode('utf-8')
+
+    # Commit sur GitHub
+    g = Github(github_token)
+    repo = g.get_repo(github_repo)
+    path_remote = CACHE_PARQUET_PATH  # Exemple: "data/strava_data_cache.parquet"
+
+    try:
+        file = repo.get_contents(path_remote)
+        repo.update_file(
+            path=path_remote,
+            message="Mise à jour automatique du cache Strava",
+            content=content_encoded,
+            sha=file.sha
+        )
+    except Exception as e:
+        # Création initiale si le fichier n'existe pas
+        repo.create_file(
+            path=path_remote,
+            message="Ajout initial du cache Strava",
+            content=content_encoded
+        )
 
 def refresh_access_token():
     url = "https://www.strava.com/oauth/token"
@@ -196,6 +238,9 @@ st.subheader("📅 Actualisation des données")
 if st.button("📥 Actualiser mes données Strava"):
     try:
         activities = get_activities_cached()
+        df_nouvelles = construire_dataframe_activites(activities)
+        mettre_a_jour_et_commit_cache_parquet(df_nouvelles)
+
         st.session_state["activities"] = activities
         st.success("Données mises à jour.")
     except Exception as e:
@@ -351,4 +396,48 @@ if activities and isinstance(activities, list):
             else:
                 st.info("Aucune séance 'tempo' détectée dans les descriptions Strava.")
 
+def charger_cache_parquet():
+    if os.path.exists(CACHE_PARQUET_PATH):
+        return pd.read_parquet(CACHE_PARQUET_PATH)
+    else:
+        return pd.DataFrame()
+
+
+def mettre_a_jour_et_commit_cache_parquet(new_activities_df):
+    if os.path.exists(CACHE_PARQUET_PATH):
+        df_cache = pd.read_parquet(CACHE_PARQUET_PATH)
+        ids_existants = set(df_cache["id"].astype(str))
+        df_nouvelles = new_activities_df[~new_activities_df["id"].astype(str).isin(ids_existants)]
+        df_final = pd.concat([df_cache, df_nouvelles], ignore_index=True)
+    else:
+        df_final = new_activities_df
+
+    # Écriture locale
+    df_final.to_parquet(CACHE_PARQUET_PATH, index=False)
+
+    # Préparation du fichier binaire pour GitHub
+    buffer = BytesIO()
+    df_final.to_parquet(buffer, index=False)
+    buffer.seek(0)
+    content_encoded = base64.b64encode(buffer.read()).decode('utf-8')
+
+    # Commit GitHub
+    g = Github(github_token)
+    repo = g.get_repo(github_repo)
+    path_remote = CACHE_PARQUET_PATH
+
+    try:
+        file = repo.get_contents(path_remote)
+        repo.update_file(
+            path=path_remote,
+            message="🔄 Mise à jour du cache Strava (parquet)",
+            content=content_encoded,
+            sha=file.sha
+        )
+    except:
+        repo.create_file(
+            path=path_remote,
+            message="✨ Création initiale du cache Strava (parquet)",
+            content=content_encoded
+        )
 
