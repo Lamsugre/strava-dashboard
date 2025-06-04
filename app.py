@@ -342,7 +342,7 @@ if 'id' not in df.columns:
         "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
         "FC Moyenne": act.get("average_heartrate"),
         "FC Max": act.get("max_heartrate"),
-        "Date": act["start_date_local"][:10],
+        "Date": act.get("start_date_local"][:10],
         "Type": act.get("type", "—"),
         "Description": act.get("description", "")
     } for act in activities])
@@ -365,8 +365,15 @@ if 'id' not in df.columns:
         # Charge le cache enrichi
         df_cache = charger_cache_parquet()
 
-        # Fusion sur les ID disponibles dans les deux tableaux
-        df_merge = df.merge(df_cache[["id", "FC Stream", "Temps Stream"]], on="id", how="left")
+        # Ensure 'id', 'FC Stream', and 'Temps Stream' columns exist in df_cache
+        required_columns = ['id', 'FC Stream', 'Temps Stream']
+        for col in required_columns:
+            if col not in df_cache.columns:
+                st.warning(f"❗ La colonne '{col}' est absente du cache Strava.")
+                df_cache[col] = None
+
+        # Perform the merge operation
+        df_merge = df.merge(df_cache[required_columns], on="id", how="left")
 
         # Sélecteur
         selected_label = st.selectbox("Choisis une activité :", df_merge["Nom"] + " – " + df_merge["Date_affichée"])
