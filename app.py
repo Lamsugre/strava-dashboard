@@ -318,7 +318,7 @@ if activities and isinstance(activities, list):
         "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
         "FC Moyenne": act.get("average_heartrate"),
         "FC Max": act.get("max_heartrate"),
-        "Date": act["start_date_local"][:10],
+        "Date": act.get("start_date_local", "")[:10],
         "Type": act.get("type", "—"),
         "Description": act.get("description", "")
     } for act in activities])
@@ -342,7 +342,7 @@ if 'id' not in df.columns:
         "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
         "FC Moyenne": act.get("average_heartrate"),
         "FC Max": act.get("max_heartrate"),
-        "Date": act.get("start_date_local"][:10],
+        "Date": act.get("start_date_local", "")[:10],
         "Type": act.get("type", "—"),
         "Description": act.get("description", "")
     } for act in activities])
@@ -538,7 +538,7 @@ if activities and isinstance(activities, list):
         "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
         "FC Moyenne": act.get("average_heartrate"),
         "FC Max": act.get("max_heartrate"),
-        "Date": act["start_date_local"][:10],
+        "Date": act.get("start_date_local", "")[:10],
         "Type": act.get("type", "—"),
         "Description": act.get("description", "")
     } for act in activities])
