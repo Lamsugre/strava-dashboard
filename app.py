@@ -64,11 +64,19 @@ else:
 
 # Corriger le chargement de fichier parquet vide ou non valide
 def charger_cache_parquet():
-    try:
-        if os.path.exists(CACHE_PARQUET_PATH) and os.path.getsize(CACHE_PARQUET_PATH) > 0:
-            return pd.read_parquet(CACHE_PARQUET_PATH)
-    except Exception as e:
-        st.warning("⚠️ Cache invalide. Il sera régénéré.")
+    """Load the local Parquet cache, handling base64 encoded content."""
+    if os.path.exists(CACHE_PARQUET_PATH) and os.path.getsize(CACHE_PARQUET_PATH) > 0:
+        try:
+            try:
+                # First attempt: direct parquet read
+                return pd.read_parquet(CACHE_PARQUET_PATH)
+            except Exception:
+                # File may be base64 encoded (when pulled from GitHub)
+                with open(CACHE_PARQUET_PATH, "rb") as f:
+                    data = base64.b64decode(f.read())
+                return pd.read_parquet(BytesIO(data))
+        except Exception:
+            st.warning("⚠️ Cache invalide. Il sera régénéré.")
     return pd.DataFrame()
 
 # Ne pas redéfinir deux fois cette fonction dans le fichier !
@@ -368,7 +376,12 @@ if page == "🏠 Tableau général":
         fc_stream = selected_row.iloc[0]["FC Stream"]
         time_stream = selected_row.iloc[0]["Temps Stream"]
 
-        if fc_stream and time_stream and len(fc_stream) == len(time_stream):
+        if (
+            fc_stream is not None
+            and time_stream is not None
+            and len(fc_stream) > 0
+            and len(fc_stream) == len(time_stream)
+        ):
             df_graph = pd.DataFrame({
                 "Temps (s)": time_stream,
                 "Fréquence cardiaque (bpm)": fc_stream
@@ -530,51 +543,3 @@ else:
     df = pd.DataFrame()  # Create an empty DataFrame to avoid errors
 
 # Check if 'id' column exists
-if 'id' not in df.columns:
-    st.warning("❗ Les données Strava ne contiennent pas la colonne 'id'.")
-    df['id'] = None
-
-def charger_cache_parquet():
-    if os.path.exists(CACHE_PARQUET_PATH):
-        return pd.read_parquet(CACHE_PARQUET_PATH)
-    else:
-        return pd.DataFrame()
-
-
-def mettre_a_jour_et_commit_cache_parquet(new_activities_df):
-    if os.path.exists(CACHE_PARQUET_PATH):
-        df_cache = pd.read_parquet(CACHE_PARQUET_PATH)
-        ids_existants = set(df_cache["id"].astype(str))
-        df_nouvelles = new_activities_df[~new_activities_df["id"].astype(str).isin(ids_existants)]
-        df_final = pd.concat([df_cache, df_nouvelles], ignore_index=True)
-    else:
-        df_final = new_activities_df
-
-    # Écriture locale
-    df_final.to_parquet(CACHE_PARQUET_PATH, index=False)
-
-    # Préparation du fichier binaire pour GitHub
-    buffer = BytesIO()
-    df_final.to_parquet(buffer, index=False)
-    buffer.seek(0)
-    content_encoded = base64.b64encode(buffer.read()).decode('utf-8')
-
-    # Commit GitHub
-    g = Github(github_token)
-    repo = g.get_repo(github_repo)
-    path_remote = CACHE_PARQUET_PATH
-
-    try:
-        file = repo.get_contents(path_remote)
-        repo.update_file(
-            path=path_remote,
-            message="🔄 Mise à jour du cache Strava (parquet)",
-            content=content_encoded,
-            sha=file.sha
-        )
-    except:
-        repo.create_file(
-            path=path_remote,
-            message="✨ Création initiale du cache Strava (parquet)",
-            content=content_encoded
-        )
