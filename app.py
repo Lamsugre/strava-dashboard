@@ -40,14 +40,26 @@ github_repo = st.secrets["GITHUB_REPO"]
 
 PLAN_PATH = "plan_semi_vincennes_2025.json"
 CACHE_PARQUET_PATH = "data/strava_data_cache.parquet"
+PLAN_YEAR = 2025
 
 if os.path.exists(PLAN_PATH):
     with open(PLAN_PATH, "r", encoding="utf-8") as f:
         plan_data = json.load(f)
     weeks = plan_data.get("weeks", [])
+    day_map = {day: i for i, day in enumerate(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])}
     records = []
     for week in weeks:
+        week_range = week.get("week", "")
+        start_str = week_range.split("-")[0].strip()
+        try:
+            start_date = datetime.datetime.strptime(f"{start_str} {PLAN_YEAR}", "%d %b %Y")
+        except ValueError:
+            start_date = None
         for session in week.get("sessions", []):
+            if start_date and session.get("day") in day_map:
+                session_date = (start_date + datetime.timedelta(days=day_map[session.get("day")])).date()
+            else:
+                session_date = None
             record = {
                 "week": week.get("week", ""),
                 "day": session.get("day", ""),
@@ -55,10 +67,13 @@ if os.path.exists(PLAN_PATH):
                 "type": session.get("type", ""),
                 "duration_min": session.get("duration_min", ""),
                 "distance_km": session.get("distance_km", ""),
-                "details": json.dumps(session.get("details", {}))
+                "details": json.dumps(session.get("details", {})),
+                "date": session_date
             }
             records.append(record)
     df_plan = pd.DataFrame(records)
+    if not df_plan.empty:
+        df_plan.sort_values(by="date", inplace=True)
 else:
     df_plan = pd.DataFrame()
 
@@ -184,21 +199,24 @@ def construire_dataframe_activites_complet(activities, access_token):
             "Description": act.get("description", "")
         }
 
-        # Appel de l'API Strava pour récupérer le stream FC + temps
+        # Appel de l'API Strava pour récupérer le stream FC + temps + distance
         stream_url = f"https://www.strava.com/api/v3/activities/{act['id']}/streams"
-        params = {"keys": "heartrate,time", "key_by_type": "true"}
+        params = {"keys": "heartrate,time,distance", "key_by_type": "true"}
         try:
             stream_res = requests.get(stream_url, headers=headers, params=params)
             if stream_res.status_code == 200:
                 stream_data = stream_res.json()
                 row["FC Stream"] = stream_data.get("heartrate", {}).get("data", [])
                 row["Temps Stream"] = stream_data.get("time", {}).get("data", [])
+                row["Distance Stream"] = stream_data.get("distance", {}).get("data", [])
             else:
                 row["FC Stream"] = []
                 row["Temps Stream"] = []
+                row["Distance Stream"] = []
         except Exception as e:
             row["FC Stream"] = []
             row["Temps Stream"] = []
+            row["Distance Stream"] = []
 
         rows.append(row)
 
@@ -316,7 +334,7 @@ if activities and isinstance(activities, (list, pd.DataFrame)):
     df_cache = charger_cache_parquet()
     if 'id' not in df_cache.columns:
         st.warning("❗ Le cache Strava ne contient pas la colonne 'id'. Impossible d'afficher les courbes de fréquence cardiaque.")
-        df_cache = pd.DataFrame(columns=['id', 'FC Stream', 'Temps Stream'])
+        df_cache = pd.DataFrame(columns=['id', 'FC Stream', 'Temps Stream', 'Distance Stream'])
     # Ensure activities are valid before creating df
 if activities and isinstance(activities, list):
     df = pd.DataFrame([{ 
@@ -358,8 +376,8 @@ if page == "🏠 Tableau général":
     # Charge le cache enrichi
     df_cache = charger_cache_parquet()
 
-    # Ensure 'id', 'FC Stream', and 'Temps Stream' columns exist in df_cache
-    required_columns = ['id', 'FC Stream', 'Temps Stream']
+    # Ensure 'id', 'FC Stream', 'Temps Stream' and 'Distance Stream' columns exist in df_cache
+    required_columns = ['id', 'FC Stream', 'Temps Stream', 'Distance Stream']
     for col in required_columns:
         if col not in df_cache.columns:
             st.warning(f"❗ La colonne '{col}' est absente du cache Strava.")
@@ -375,22 +393,23 @@ if page == "🏠 Tableau général":
     if not selected_row.empty:
         fc_stream = selected_row.iloc[0]["FC Stream"]
         time_stream = selected_row.iloc[0]["Temps Stream"]
+        distance_stream = selected_row.iloc[0]["Distance Stream"]
 
         if (
             fc_stream is not None
-            and time_stream is not None
+            and distance_stream is not None
             and len(fc_stream) > 0
-            and len(fc_stream) == len(time_stream)
+            and len(fc_stream) == len(distance_stream)
         ):
             df_graph = pd.DataFrame({
-                "Temps (s)": time_stream,
+                "Distance (km)": [d / 1000 for d in distance_stream],
                 "Fréquence cardiaque (bpm)": fc_stream
             })
 
             chart = alt.Chart(df_graph).mark_line(color="crimson").encode(
-                x=alt.X("Temps (s)", title="Temps (s)", scale=alt.Scale(zero=False)),
+                x=alt.X("Distance (km)", title="Distance (km)", scale=alt.Scale(zero=False)),
                 y=alt.Y("Fréquence cardiaque (bpm)", title="FC (bpm)", scale=alt.Scale(zero=False)),
-                tooltip=["Temps (s)", "Fréquence cardiaque (bpm)"]
+                tooltip=["Distance (km)", "Fréquence cardiaque (bpm)"]
             ).interactive().properties(
                 width=700,
                 height=300,
@@ -438,10 +457,16 @@ if page == "🏠 Tableau général":
     edit_prompt = st.text_area("Décris le changement souhaité", key="edit_prompt")
 
     st.markdown("### 🗓️ Les 4 prochaines séances")
-    prochaines = df_plan.head(4)
+    today = datetime.date.today()
+    prochaines = (
+        df_plan[df_plan["date"] >= today]
+        .sort_values("date")
+        .head(4)
+    )
 
     for i, row in prochaines.iterrows():
-        with st.expander(f"🏃 {row['day']} – {row['name']}"):
+        date_str = row['date'].strftime('%d/%m/%Y') if pd.notnull(row['date']) else ''
+        with st.expander(f"🏃 {date_str} {row['day']} – {row['name']}"):
             st.markdown(f"**Type :** {row['type']}")
             st.markdown(f"**Durée :** {row['duration_min']} min")
             st.markdown(f"**Distance :** {row['distance_km']} km")
