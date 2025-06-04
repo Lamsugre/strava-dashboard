@@ -146,7 +146,7 @@ def refresh_access_token():
     res.raise_for_status()
     return res.json()["access_token"]
 
-def get_strava_activities(access_token, num_activities=50, max_detailed=5):
+def get_strava_activities(access_token, num_activities=50, max_detailed=None):
     url = "https://www.strava.com/api/v3/athlete/activities"
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {"per_page": num_activities, "page": 1}
@@ -158,6 +158,9 @@ def get_strava_activities(access_token, num_activities=50, max_detailed=5):
 
     res.raise_for_status()
     activities = res.json()
+
+    if max_detailed is None:
+        max_detailed = num_activities
 
     detailed_activities = []
     for i, act in enumerate(activities):
@@ -273,7 +276,8 @@ def appel_chatgpt_conseil(question, df_activities, df_plan):
 @st.cache_data(ttl=1800)
 def get_activities_cached():
     access_token = refresh_access_token()
-    return get_strava_activities(access_token)
+    # Récupère les descriptions pour toutes les activités retournées
+    return get_strava_activities(access_token, num_activities=50, max_detailed=50)
 activities = st.session_state.get("activities", None)
 with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
