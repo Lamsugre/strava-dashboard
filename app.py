@@ -304,6 +304,16 @@ if st.button("📥 Actualiser mes données Strava"):
         st.exception(e)
 
 if activities and isinstance(activities, list):
+        # Vérifie que df_cache contient bien les colonnes nécessaires
+    df_cache = charger_cache_parquet()
+    if 'id' not in df_cache.columns:
+        st.warning("❗ Le cache Strava ne contient pas la colonne 'id'. Impossible d'afficher les courbes de fréquence cardiaque.")
+        df_cache = pd.DataFrame(columns=['id', 'FC Stream', 'Temps Stream'])
+
+    if 'id' not in df.columns:
+        st.warning("❗ Les données Strava ne contiennent pas la colonne 'id'.")
+        df['id'] = None
+
     df = pd.DataFrame([{
         "Nom": act.get("name", "—"),
         "Distance (km)": round(act["distance"] / 1000, 2),
