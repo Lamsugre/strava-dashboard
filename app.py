@@ -516,53 +516,102 @@ if page == "🏠 Tableau général":
                 st.exception(e)
 
     elif page == "💥 Analyse Fractionné":
-        st.subheader("🧩 Laps de la séance du 19/05/2025")
+        st.subheader("🏁 Analyse des séances fractionnées")
 
-        # Appel API Strava pour récupérer les laps
-        activity_id = "14527571757"
-        access_token = refresh_access_token()
-        url_laps = f"https://www.strava.com/api/v3/activities/{activity_id}/laps"
-        headers = {"Authorization": f"Bearer {access_token}"}
-        res = requests.get(url_laps, headers=headers)
-        
-        if res.status_code == 200:
-            laps_data = res.json()
-            df_laps = pd.DataFrame([{
-                "Lap": i + 1,
-                "Type": lap.get("name", "—"),
-                "Distance (km)": round(lap["distance"] / 1000, 2),
-                "Temps (min)": round(lap["elapsed_time"] / 60, 1),
-                "FC Moy": lap.get("average_heartrate"),
-                "FC Max": lap.get("max_heartrate"),
-                "Allure (min/km)": round((lap["elapsed_time"] / 60) / (lap["distance"] / 1000), 2) if lap["distance"] > 0 else None
-            } for i, lap in enumerate(laps_data)])
-
-            st.dataframe(df_laps)
+        if df.empty:
+            st.info("Aucune activité disponible.")
         else:
-            st.error("Impossible de récupérer les laps depuis l’API Strava.")
-            st.text(res.text)
-            
-            df_tempo = df[df["Description"].str.contains("Tempo", case=False, na=False)]
-            if not df_tempo.empty:
-                st.dataframe(df_tempo[["Date_affichée", "Nom", "Description", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max"]])
+            df_fractionne = df[df["Description"].str.contains("tempo", case=False, na=False)]
+            st.dataframe(
+                df_fractionne[["Date_affichée", "Nom", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max", "Description"]]
+                .rename(columns={"Date_affichée": "Date"})
+            )
+
+            if not df_fractionne.empty:
+                label_act = st.selectbox(
+                    "Choisis une séance fractionnée :",
+                    df_fractionne["Nom"] + " – " + df_fractionne["Date_affichée"]
+                )
+                selected = df_fractionne[df_fractionne["Nom"] + " – " + df_fractionne["Date_affichée"] == label_act]
+
+                if not selected.empty:
+                    act_id = selected.iloc[0]["id"]
+                    access_token = refresh_access_token()
+                    headers = {"Authorization": f"Bearer {access_token}"}
+
+                    # --- Laps
+                    url_laps = f"https://www.strava.com/api/v3/activities/{act_id}/laps"
+                    res_laps = requests.get(url_laps, headers=headers)
+                    if res_laps.status_code == 200:
+                        laps_data = res_laps.json()
+                        df_laps = pd.DataFrame([
+                            {
+                                "Lap": i + 1,
+                                "Type": lap.get("name", "—"),
+                                "Distance (km)": round(lap.get("distance", 0) / 1000, 2),
+                                "Temps (min)": round(lap.get("elapsed_time", 0) / 60, 1),
+                                "FC Moy": lap.get("average_heartrate"),
+                                "Allure (min/km)": round((lap.get("elapsed_time", 0) / 60) / ((lap.get("distance", 1)) / 1000), 2)
+                                if lap.get("distance", 0) > 0 else None,
+                            }
+                            for i, lap in enumerate(laps_data)
+                        ])
+                        st.subheader("📋 Détail des splits")
+                        st.dataframe(df_laps)
+                    else:
+                        st.warning("Impossible de récupérer les laps.")
+
+                    # --- Streams
+                    url_stream = f"https://www.strava.com/api/v3/activities/{act_id}/streams"
+                    params = {"keys": "heartrate,distance,velocity_smooth", "key_by_type": "true"}
+                    res_stream = requests.get(url_stream, headers=headers, params=params)
+                    if res_stream.status_code == 200:
+                        streams = res_stream.json()
+                        distance_stream = [d / 1000 for d in streams.get("distance", {}).get("data", [])]
+                        fc_stream = streams.get("heartrate", {}).get("data", [])
+                        velocity_stream = streams.get("velocity_smooth", {}).get("data", [])
+
+                        if distance_stream and fc_stream and len(distance_stream) == len(fc_stream):
+                            df_hr = pd.DataFrame({
+                                "Distance (km)": distance_stream,
+                                "Fréquence cardiaque (bpm)": fc_stream,
+                            })
+                            hr_chart = (
+                                alt.Chart(df_hr)
+                                .mark_line(color="crimson")
+                                .encode(
+                                    x=alt.X("Distance (km)", title="Distance (km)", scale=alt.Scale(zero=False)),
+                                    y=alt.Y("Fréquence cardiaque (bpm)", title="FC (bpm)", scale=alt.Scale(zero=False)),
+                                    tooltip=["Distance (km)", "Fréquence cardiaque (bpm)"]
+                                )
+                                .interactive()
+                                .properties(width=700, height=300, title="Évolution de la FC")
+                            )
+                            st.altair_chart(hr_chart)
+                        else:
+                            st.info("Pas de données de fréquence cardiaque.")
+
+                        if distance_stream and velocity_stream and len(distance_stream) == len(velocity_stream):
+                            pace_stream = [16.6667 / v if v else None for v in velocity_stream]
+                            df_pace = pd.DataFrame({
+                                "Distance (km)": distance_stream,
+                                "Allure (min/km)": pace_stream,
+                            })
+                            pace_chart = (
+                                alt.Chart(df_pace)
+                                .mark_line(color="steelblue")
+                                .encode(
+                                    x=alt.X("Distance (km)", title="Distance (km)", scale=alt.Scale(zero=False)),
+                                    y=alt.Y("Allure (min/km)", title="Allure (min/km)", scale=alt.Scale(zero=False)),
+                                    tooltip=["Distance (km)", "Allure (min/km)"]
+                                )
+                                .interactive()
+                                .properties(width=700, height=300, title="Évolution de l'allure")
+                            )
+                            st.altair_chart(pace_chart)
+                        else:
+                            st.info("Pas de données d'allure.")
+                    else:
+                        st.error("Impossible de récupérer les données de l'activité.")
             else:
-                st.info("Aucune séance 'tempo' détectée dans les descriptions Strava.")
-
-# Ensure activities are valid before creating df
-if activities and isinstance(activities, list):
-    df = pd.DataFrame([{
-        "Nom": act.get("name", "—"),
-        "Distance (km)": round(act["distance"] / 1000, 2),
-        "Durée (min)": round(act["elapsed_time"] / 60, 1),
-        "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
-        "FC Moyenne": act.get("average_heartrate"),
-        "FC Max": act.get("max_heartrate"),
-        "Date": act.get("start_date_local", "")[:10],
-        "Type": act.get("type", "—"),
-        "Description": act.get("description", "")
-    } for act in activities])
-else:
-    st.warning("⚠️ Les données Strava ne sont pas encore chargées.")
-    df = pd.DataFrame()  # Create an empty DataFrame to avoid errors
-
-# Check if 'id' column exists
+                st.info("Aucune activité marquée comme 'tempo'.")
