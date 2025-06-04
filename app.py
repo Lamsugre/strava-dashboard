@@ -311,7 +311,8 @@ if activities and isinstance(activities, (list, pd.DataFrame)):
         df_cache = pd.DataFrame(columns=['id', 'FC Stream', 'Temps Stream'])
     # Ensure activities are valid before creating df
 if activities and isinstance(activities, list):
-    df = pd.DataFrame([{
+    df = pd.DataFrame([{ 
+        "id": act.get("id"),
         "Nom": act.get("name", "—"),
         "Distance (km)": round(act["distance"] / 1000, 2),
         "Durée (min)": round(act["elapsed_time"] / 60, 1),
@@ -330,171 +331,153 @@ else:
 if 'id' not in df.columns:
     st.warning("❗ Les données Strava ne contiennent pas la colonne 'id'.")
     df['id'] = None
-    
-    if 'id' not in df.columns:
-        st.warning("❗ Les données Strava ne contiennent pas la colonne 'id'.")
-        df['id'] = None
 
-    df = pd.DataFrame([{
-        "Nom": act.get("name", "—"),
-        "Distance (km)": round(act["distance"] / 1000, 2),
-        "Durée (min)": round(act["elapsed_time"] / 60, 1),
-        "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
-        "FC Moyenne": act.get("average_heartrate"),
-        "FC Max": act.get("max_heartrate"),
-        "Date": act.get("start_date_local", "")[:10],
-        "Type": act.get("type", "—"),
-        "Description": act.get("description", "")
-    } for act in activities])
-
+if not df.empty:
     df["Date"] = pd.to_datetime(df["Date"])
     df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
     df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
 
-    if page == "🏠 Tableau général":
-        # Existing content preserved
-        st.subheader("📋 Tableau des activités")
-        types_disponibles = df["Type"].unique().tolist()
-        type_choisi = st.selectbox("Filtrer par type d'activité", ["Toutes"] + types_disponibles, key="type_filter")
-        if type_choisi != "Toutes":
-            df = df[df["Type"] == type_choisi]
-        st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
-       
-        st.subheader("📊 Visualiser la fréquence cardiaque")
+if page == "🏠 Tableau général":
+    st.subheader("📋 Tableau des activités")
+    types_disponibles = df["Type"].unique().tolist()
+    type_choisi = st.selectbox("Filtrer par type d'activité", ["Toutes"] + types_disponibles, key="type_filter")
+    if type_choisi != "Toutes":
+        df = df[df["Type"] == type_choisi]
+    st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
 
-        # Charge le cache enrichi
-        df_cache = charger_cache_parquet()
+    st.subheader("📊 Visualiser la fréquence cardiaque")
 
-        # Ensure 'id', 'FC Stream', and 'Temps Stream' columns exist in df_cache
-        required_columns = ['id', 'FC Stream', 'Temps Stream']
-        for col in required_columns:
-            if col not in df_cache.columns:
-                st.warning(f"❗ La colonne '{col}' est absente du cache Strava.")
-                df_cache[col] = None
+    # Charge le cache enrichi
+    df_cache = charger_cache_parquet()
 
-        # Perform the merge operation
-        df_merge = df.merge(df_cache[required_columns], on="id", how="left")
+    # Ensure 'id', 'FC Stream', and 'Temps Stream' columns exist in df_cache
+    required_columns = ['id', 'FC Stream', 'Temps Stream']
+    for col in required_columns:
+        if col not in df_cache.columns:
+            st.warning(f"❗ La colonne '{col}' est absente du cache Strava.")
+            df_cache[col] = None
 
-        # Sélecteur
-        selected_label = st.selectbox("Choisis une activité :", df_merge["Nom"] + " – " + df_merge["Date_affichée"])
-        selected_row = df_merge[df_merge["Nom"] + " – " + df_merge["Date_affichée"] == selected_label]
+    # Perform the merge operation
+    df_merge = df.merge(df_cache[required_columns], on="id", how="left")
 
-        if not selected_row.empty:
-            fc_stream = selected_row.iloc[0]["FC Stream"]
-            time_stream = selected_row.iloc[0]["Temps Stream"]
+    # Sélecteur
+    selected_label = st.selectbox("Choisis une activité :", df_merge["Nom"] + " – " + df_merge["Date_affichée"])
+    selected_row = df_merge[df_merge["Nom"] + " – " + df_merge["Date_affichée"] == selected_label]
 
-            if fc_stream and time_stream and len(fc_stream) == len(time_stream):
-                df_graph = pd.DataFrame({
-                    "Temps (s)": time_stream,
-                    "Fréquence cardiaque (bpm)": fc_stream
-                })
+    if not selected_row.empty:
+        fc_stream = selected_row.iloc[0]["FC Stream"]
+        time_stream = selected_row.iloc[0]["Temps Stream"]
 
-                chart = alt.Chart(df_graph).mark_line(color="crimson").encode(
-                    x=alt.X("Temps (s)", title="Temps (s)", scale=alt.Scale(zero=False)),
-                    y=alt.Y("Fréquence cardiaque (bpm)", title="FC (bpm)", scale=alt.Scale(zero=False)),
-                    tooltip=["Temps (s)", "Fréquence cardiaque (bpm)"]
-                ).interactive().properties(
-                    width=700,
-                    height=300,
-                    title="Évolution de la FC pendant l'activité"
-                )
+        if fc_stream and time_stream and len(fc_stream) == len(time_stream):
+            df_graph = pd.DataFrame({
+                "Temps (s)": time_stream,
+                "Fréquence cardiaque (bpm)": fc_stream
+            })
 
-                st.altair_chart(chart)
-            else:
-                st.info("Pas de données de fréquence cardiaque disponibles pour cette activité.")
+            chart = alt.Chart(df_graph).mark_line(color="crimson").encode(
+                x=alt.X("Temps (s)", title="Temps (s)", scale=alt.Scale(zero=False)),
+                y=alt.Y("Fréquence cardiaque (bpm)", title="FC (bpm)", scale=alt.Scale(zero=False)),
+                tooltip=["Temps (s)", "Fréquence cardiaque (bpm)"]
+            ).interactive().properties(
+                width=700,
+                height=300,
+                title="Évolution de la FC pendant l'activité"
+            )
+
+            st.altair_chart(chart)
         else:
-            st.warning("Sélection invalide.")
+            st.info("Pas de données de fréquence cardiaque disponibles pour cette activité.")
+    else:
+        st.warning("Sélection invalide.")
 
+    st.subheader("📈 Volume hebdomadaire & Allure moyenne")
+    df_weekly = df.groupby("Semaine").agg({
+        "Distance (km)": "sum",
+        "Durée (min)": "sum"
+    }).reset_index()
+    df_weekly["Allure (min/km)"] = df_weekly["Durée (min)"] / df_weekly["Distance (km)"]
 
-        st.subheader("📈 Volume hebdomadaire & Allure moyenne")
-        df_weekly = df.groupby("Semaine").agg({
-            "Distance (km)": "sum",
-            "Durée (min)": "sum"
-        }).reset_index()
-        df_weekly["Allure (min/km)"] = df_weekly["Durée (min)"] / df_weekly["Distance (km)"]
+    bar_chart = alt.Chart(df_weekly).mark_bar(color="#1f77b4").encode(
+        x=alt.X("Semaine:O", title="Semaine"),
+        y=alt.Y("Distance (km):Q", title="Distance (km)"),
+        tooltip=["Semaine", "Distance (km)", "Allure (min/km)"]
+    )
 
-        bar_chart = alt.Chart(df_weekly).mark_bar(color="#1f77b4").encode(
-            x=alt.X("Semaine:O", title="Semaine"),
-            y=alt.Y("Distance (km):Q", title="Distance (km)"),
-            tooltip=["Semaine", "Distance (km)", "Allure (min/km)"]
-        )
+    line_chart = alt.Chart(df_weekly).mark_line(color="orange", point=True).encode(
+        x="Semaine:O",
+        y=alt.Y("Allure (min/km):Q", title="Allure (min/km)", axis=alt.Axis(titleColor="orange")),
+        tooltip=["Allure (min/km)"]
+    )
 
-        line_chart = alt.Chart(df_weekly).mark_line(color="orange", point=True).encode(
-            x="Semaine:O",
-            y=alt.Y("Allure (min/km):Q", title="Allure (min/km)", axis=alt.Axis(titleColor="orange")),
-            tooltip=["Allure (min/km)"]
-        )
+    chart = alt.layer(bar_chart, line_chart).resolve_scale(y='independent').properties(
+        width=700, height=400
+    )
+    st.altair_chart(chart)
 
-        chart = alt.layer(bar_chart, line_chart).resolve_scale(y='independent').properties(
-            width=700, height=400
-        )
-        st.altair_chart(chart)
-        
-    
-        st.subheader("📅 Prochaines séances du plan")
-        if not df_plan.empty:
-            st.dataframe(df_plan.head(6))
-        else:
-            st.info("Aucune donnée de plan disponible.")
-    
-        st.markdown("---")
-        st.subheader("🛠️ Modifier mon plan avec l'IA")
-        edit_prompt = st.text_area("Décris le changement souhaité", key="edit_prompt")
+    st.subheader("📅 Prochaines séances du plan")
+    if not df_plan.empty:
+        st.dataframe(df_plan.head(6))
+    else:
+        st.info("Aucune donnée de plan disponible.")
 
-        st.markdown("### 🗓️ Les 4 prochaines séances")
-        prochaines = df_plan.head(4)
+    st.markdown("---")
+    st.subheader("🛠️ Modifier mon plan avec l'IA")
+    edit_prompt = st.text_area("Décris le changement souhaité", key="edit_prompt")
 
-        for i, row in prochaines.iterrows():
-            with st.expander(f"🏃 {row['day']} – {row['name']}"):
-                st.markdown(f"**Type :** {row['type']}")
-                st.markdown(f"**Durée :** {row['duration_min']} min")
-                st.markdown(f"**Distance :** {row['distance_km']} km")
-                st.markdown("**Détails :**")
-                try:
-                    parsed_details = json.loads(row["details"])
-                    for k, v in parsed_details.items():
-                        st.markdown(f"- **{k}** : {v}")
-                except:
-                    st.markdown(row["details"])
-    
-        if st.button("💬 Générer une proposition de modification IA"):
+    st.markdown("### 🗓️ Les 4 prochaines séances")
+    prochaines = df_plan.head(4)
+
+    for i, row in prochaines.iterrows():
+        with st.expander(f"🏃 {row['day']} – {row['name']}"):
+            st.markdown(f"**Type :** {row['type']}")
+            st.markdown(f"**Durée :** {row['duration_min']} min")
+            st.markdown(f"**Distance :** {row['distance_km']} km")
+            st.markdown("**Détails :**")
             try:
-                instruction_modif = f"Voici le plan actuel:\n{df_plan.to_string(index=False)}\n\nVoici la demande:\n{edit_prompt}\n\nPropose uniquement UNE séance modifiée sous forme d'un objet JSON valide (ne réponds que par le JSON sans explication)."
-                client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-                response = client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": "Tu es un assistant expert en entraînement de course à pied. Tu modifies le plan d'entraînement au format JSON."},
-                        {"role": "user", "content": instruction_modif}
-                    ],
-                    temperature=0.4
-                )
-                json_proposal = response.choices[0].message.content
-                st.session_state["last_json_modif"] = json_proposal
-                st.code(json_proposal, language="json")
+                parsed_details = json.loads(row["details"])
+                for k, v in parsed_details.items():
+                    st.markdown(f"- **{k}** : {v}")
+            except:
+                st.markdown(row["details"])
+
+    if st.button("💬 Générer une proposition de modification IA"):
+        try:
+            instruction_modif = f"Voici le plan actuel:\n{df_plan.to_string(index=False)}\n\nVoici la demande:\n{edit_prompt}\n\nPropose uniquement UNE séance modifiée sous forme d'un objet JSON valide (ne réponds que par le JSON sans explication)."
+            client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "Tu es un assistant expert en entraînement de course à pied. Tu modifies le plan d'entraînement au format JSON."},
+                    {"role": "user", "content": instruction_modif}
+                ],
+                temperature=0.4
+            )
+            json_proposal = response.choices[0].message.content
+            st.session_state["last_json_modif"] = json_proposal
+            st.code(json_proposal, language="json")
+        except Exception as e:
+            st.error("Erreur lors de la génération par l'IA.")
+            st.exception(e)
+
+        if "last_json_modif" in st.session_state and st.button("✅ Appliquer cette modification au fichier"):
+            try:
+                new_obj = json.loads(st.session_state["last_json_modif"])
+                df_plan["date"] = pd.to_datetime(df_plan["date"])
+                df_plan.set_index("date", inplace=True)
+                new_date = pd.to_datetime(new_obj["date"])
+                df_plan.loc[new_date] = new_obj
+                df_plan.reset_index(inplace=True)
+                df_plan.sort_values(by="date", inplace=True)
+
+                final_text = json.dumps(df_plan.to_dict(orient="records"), indent=2, ensure_ascii=False, default=str)
+                with open(PLAN_PATH, "w", encoding="utf-8") as f:
+                    f.write(final_text)
+                commit_to_github(final_text)
+                st.success("✅ Plan mis à jour et synchronisé avec GitHub.")
+                st.rerun()
             except Exception as e:
-                st.error("Erreur lors de la génération par l'IA.")
+                st.error("❌ Erreur lors de l'application de la modification.")
                 st.exception(e)
-
-            if "last_json_modif" in st.session_state and st.button("✅ Appliquer cette modification au fichier"):
-                try:
-                    new_obj = json.loads(st.session_state["last_json_modif"])
-                    df_plan["date"] = pd.to_datetime(df_plan["date"])
-                    df_plan.set_index("date", inplace=True)
-                    new_date = pd.to_datetime(new_obj["date"])
-                    df_plan.loc[new_date] = new_obj
-                    df_plan.reset_index(inplace=True)
-                    df_plan.sort_values(by="date", inplace=True)
-
-                    final_text = json.dumps(df_plan.to_dict(orient="records"), indent=2, ensure_ascii=False, default=str)
-                    with open(PLAN_PATH, "w", encoding="utf-8") as f:
-                        f.write(final_text)
-                    commit_to_github(final_text)
-                    st.success("✅ Plan mis à jour et synchronisé avec GitHub.")
-                    st.rerun()
-                except Exception as e:
-                    st.error("❌ Erreur lors de l'application de la modification.")
-                    st.exception(e)
 
     elif page == "💥 Analyse Fractionné":
         st.subheader("🧩 Laps de la séance du 19/05/2025")
