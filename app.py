@@ -9,7 +9,6 @@ import openai
 import base64
 import altair as alt
 from io import BytesIO
-
 from github import Github
 
 # 🔐 Protection par mot de passe simple
@@ -42,7 +41,6 @@ github_repo = st.secrets["GITHUB_REPO"]
 PLAN_PATH = "plan_semi_vincennes_2025.json"
 CACHE_PARQUET_PATH = "data/strava_data_cache.parquet"
 
-
 if os.path.exists(PLAN_PATH):
     with open(PLAN_PATH, "r", encoding="utf-8") as f:
         plan_data = json.load(f)
@@ -63,44 +61,55 @@ if os.path.exists(PLAN_PATH):
     df_plan = pd.DataFrame(records)
 else:
     df_plan = pd.DataFrame()
+
+# Corriger le chargement de fichier parquet vide ou non valide
+def charger_cache_parquet():
+    try:
+        if os.path.exists(CACHE_PARQUET_PATH) and os.path.getsize(CACHE_PARQUET_PATH) > 0:
+            return pd.read_parquet(CACHE_PARQUET_PATH)
+    except Exception as e:
+        st.warning("⚠️ Cache invalide. Il sera régénéré.")
+    return pd.DataFrame()
+
+# Ne pas redéfinir deux fois cette fonction dans le fichier !
 def mettre_a_jour_et_commit_cache_parquet(new_activities_df):
     if os.path.exists(CACHE_PARQUET_PATH):
-        df_cache = pd.read_parquet(CACHE_PARQUET_PATH)
-        ids_existants = set(df_cache["id"].astype(str))
-        df_nouvelles = new_activities_df[~new_activities_df["id"].astype(str).isin(ids_existants)]
-        df_final = pd.concat([df_cache, df_nouvelles], ignore_index=True)
+        try:
+            df_cache = pd.read_parquet(CACHE_PARQUET_PATH)
+            ids_existants = set(df_cache["id"].astype(str))
+            df_nouvelles = new_activities_df[~new_activities_df["id"].astype(str).isin(ids_existants)]
+            df_final = pd.concat([df_cache, df_nouvelles], ignore_index=True)
+        except:
+            df_final = new_activities_df
     else:
         df_final = new_activities_df
 
-    # Écriture en local
     df_final.to_parquet(CACHE_PARQUET_PATH, index=False)
 
-    # Préparation du buffer pour GitHub
     buffer = BytesIO()
     df_final.to_parquet(buffer, index=False)
     buffer.seek(0)
     content_encoded = base64.b64encode(buffer.read()).decode('utf-8')
 
-    # Commit sur GitHub
     g = Github(github_token)
     repo = g.get_repo(github_repo)
-    path_remote = CACHE_PARQUET_PATH  # Exemple: "data/strava_data_cache.parquet"
+    path_remote = CACHE_PARQUET_PATH
 
     try:
         file = repo.get_contents(path_remote)
         repo.update_file(
             path=path_remote,
-            message="Mise à jour automatique du cache Strava",
+            message="🔄 Mise à jour du cache Strava (parquet)",
             content=content_encoded,
             sha=file.sha
         )
-    except Exception as e:
-        # Création initiale si le fichier n'existe pas
+    except:
         repo.create_file(
             path=path_remote,
-            message="Ajout initial du cache Strava",
+            message="✨ Création initiale du cache Strava (parquet)",
             content=content_encoded
         )
+
 
 def refresh_access_token():
     url = "https://www.strava.com/oauth/token"
@@ -526,4 +535,3 @@ def mettre_a_jour_et_commit_cache_parquet(new_activities_df):
             message="✨ Création initiale du cache Strava (parquet)",
             content=content_encoded
         )
-
