@@ -309,7 +309,28 @@ if activities and isinstance(activities, (list, pd.DataFrame)):
     if 'id' not in df_cache.columns:
         st.warning("❗ Le cache Strava ne contient pas la colonne 'id'. Impossible d'afficher les courbes de fréquence cardiaque.")
         df_cache = pd.DataFrame(columns=['id', 'FC Stream', 'Temps Stream'])
+    # Ensure activities are valid before creating df
+if activities and isinstance(activities, list):
+    df = pd.DataFrame([{
+        "Nom": act.get("name", "—"),
+        "Distance (km)": round(act["distance"] / 1000, 2),
+        "Durée (min)": round(act["elapsed_time"] / 60, 1),
+        "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
+        "FC Moyenne": act.get("average_heartrate"),
+        "FC Max": act.get("max_heartrate"),
+        "Date": act["start_date_local"][:10],
+        "Type": act.get("type", "—"),
+        "Description": act.get("description", "")
+    } for act in activities])
+else:
+    st.warning("⚠️ Les données Strava ne sont pas encore chargées.")
+    df = pd.DataFrame()  # Create an empty DataFrame to avoid errors
 
+# Check if 'id' column exists
+if 'id' not in df.columns:
+    st.warning("❗ Les données Strava ne contiennent pas la colonne 'id'.")
+    df['id'] = None
+    
     if 'id' not in df.columns:
         st.warning("❗ Les données Strava ne contiennent pas la colonne 'id'.")
         df['id'] = None
