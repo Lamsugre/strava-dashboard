@@ -303,8 +303,8 @@ if st.button("📥 Actualiser mes données Strava"):
         st.error("Erreur pendant la mise à jour.")
         st.exception(e)
 
-if activities and isinstance(activities, list):
-        # Vérifie que df_cache contient bien les colonnes nécessaires
+if activities and isinstance(activities, (list, pd.DataFrame)):
+    # Vérifie que df_cache contient bien les colonnes nécessaires
     df_cache = charger_cache_parquet()
     if 'id' not in df_cache.columns:
         st.warning("❗ Le cache Strava ne contient pas la colonne 'id'. Impossible d'afficher les courbes de fréquence cardiaque.")
