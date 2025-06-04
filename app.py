@@ -245,18 +245,16 @@ def appel_chatgpt_conseil(question, df_activities, df_plan):
     resume_activites = df_activities[["Date_affichée", "Nom", "Distance (km)", "Allure (min/km)", "FC Moyenne"]].tail(5).to_string(index=False)
     resume_plan = df_plan[["week", "day", "name", "type", "distance_km"]].head(5).to_string(index=False)
 
-    prompt = f"""Tu es un coach de course à pied expérimenté.
-Voici un résumé des dernières activités de l'utilisateur :
-{resume_activites}
-
-Voici les prochaines séances de son plan :
-{resume_plan}
-
-Voici sa question :
-{question}
-
-Réponds de manière claire, utile et personnalisée.
-"""
+    prompt = (
+        f"Tu es un coach de course à pied expérimenté.\n"
+        "Voici un résumé des dernières activités de l'utilisateur :\n"
+        f"{resume_activites}\n\n"
+        "Voici les prochaines séances de son plan :\n"
+        f"{resume_plan}\n\n"
+        "Voici sa question :\n"
+        f"{question}\n\n"
+        "Réponds de manière claire, utile et personnalisée."
+    )
 
     # Appel à l’API OpenAI
     from openai import OpenAI
