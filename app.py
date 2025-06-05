@@ -471,22 +471,43 @@ if page == "🏠 Tableau général":
     df_weekly["Allure (s/km)"] = df_weekly["Allure (min/km)"] * 60
     df_weekly["Allure (mm:ss/km)"] = df_weekly["Allure (min/km)"].apply(minutes_to_mmss)
 
-    bar_chart = alt.Chart(df_weekly).mark_bar(color="#1f77b4").encode(
-        x=alt.X("Semaine:O", title="Semaine"),
-        y=alt.Y("Distance (km):Q", title="Distance (km)"),
-        tooltip=["Semaine", "Distance (km)", "Allure (mm:ss/km)"]
+    bar_chart = (
+        alt.Chart(df_weekly)
+        .mark_bar(color="#1f77b4")
+        .encode(
+            x=alt.X("Semaine:O", title="Semaine"),
+            y=alt.Y("Distance (km):Q", title="Distance (km)"),
+            tooltip=[
+                alt.Tooltip("Semaine:N", title="Semaine"),
+                alt.Tooltip("Distance (km):Q", title="Distance (km)"),
+                alt.Tooltip(field="Allure (mm:ss/km)", type="nominal", title="Allure (mm:ss/km)"),
+            ],
+        )
     )
 
-    line_chart = alt.Chart(df_weekly).mark_line(color="orange", point=True).encode(
-        x="Semaine:O",
-        y=alt.Y(
-            "`Allure (s/km)`",
-            type="quantitative",
-            title="Allure (mm:ss/km)",
-            axis=alt.Axis(titleColor="orange", labelExpr="timeFormat(datum.value*1000, '%M:%S')"),
-            scale=alt.Scale(reverse=True)
-        ),
-        tooltip=["Allure (mm:ss/km)"]
+    line_chart = (
+        alt.Chart(df_weekly)
+        .mark_line(color="orange", point=True)
+        .encode(
+            x="Semaine:O",
+            y=alt.Y(
+                "`Allure (s/km)`",
+                type="quantitative",
+                title="Allure (mm:ss/km)",
+                axis=alt.Axis(
+                    titleColor="orange",
+                    labelExpr="timeFormat(datum.value*1000, '%M:%S')",
+                ),
+                scale=alt.Scale(reverse=True),
+            ),
+            tooltip=[
+                alt.Tooltip(
+                    field="Allure (mm:ss/km)",
+                    type="nominal",
+                    title="Allure (mm:ss/km)",
+                )
+            ],
+        )
     )
 
     chart = alt.layer(bar_chart, line_chart).resolve_scale(y='independent').properties(
@@ -675,7 +696,10 @@ elif page == "💥 Analyse Fractionné":
                                     scale=alt.Scale(zero=False, reverse=True),
                                     axis=alt.Axis(labelExpr="timeFormat(datum.value*1000, '%M:%S')"),
                                 ),
-                                tooltip=["Distance (km)", "Allure (mm:ss/km)"]
+                                tooltip=[
+                                    alt.Tooltip("Distance (km):Q", title="Distance (km)"),
+                                    alt.Tooltip(field="Allure (mm:ss/km)", type="nominal", title="Allure (mm:ss/km)"),
+                                ]
                             )
                             .interactive()
                             .properties(width=700, height=300, title="Évolution de l'allure")
