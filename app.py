@@ -145,7 +145,7 @@ def refresh_access_token():
     res.raise_for_status()
     return res.json()["access_token"]
 
-def get_strava_activities(access_token, num_activities=50, max_detailed=None):
+def get_strava_activities(access_token, num_activities=50, max_detailed=None, existing_ids=None):
     url = "https://www.strava.com/api/v3/athlete/activities"
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {"per_page": num_activities, "page": 1}
@@ -157,6 +157,14 @@ def get_strava_activities(access_token, num_activities=50, max_detailed=None):
 
     res.raise_for_status()
     activities = res.json()
+
+    if existing_ids is None:
+        existing_ids = set()
+    else:
+        existing_ids = set(str(i) for i in existing_ids)
+
+    # Remove activities already present in cache
+    activities = [a for a in activities if str(a.get("id")) not in existing_ids]
 
     if max_detailed is None:
         max_detailed = num_activities
@@ -276,8 +284,23 @@ def appel_chatgpt_conseil(question, df_activities, df_plan):
 @st.cache_data(ttl=1800)
 def get_activities_cached():
     access_token = refresh_access_token()
-    activities = get_strava_activities(access_token, num_activities=50, max_detailed=50)
-    return construire_dataframe_activites_complet(activities, access_token)
+    df_cache = charger_cache_parquet()
+    existing_ids = set(df_cache["id"].astype(str)) if not df_cache.empty else set()
+
+    new_acts = get_strava_activities(
+        access_token,
+        num_activities=50,
+        max_detailed=50,
+        existing_ids=existing_ids,
+    )
+
+    if new_acts:
+        df_new = construire_dataframe_activites_complet(new_acts, access_token)
+        mettre_a_jour_et_commit_cache_parquet(df_new)
+        df_cache = pd.concat([df_cache, df_new], ignore_index=True)
+
+    df_cache.drop_duplicates(subset="id", inplace=True)
+    return df_cache
 df_activities = st.session_state.get("df_activities", None)
 with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
@@ -303,7 +326,6 @@ if page == "🏠 Tableau général":
     if st.button("📥 Actualiser mes données Strava"):
         try:
             df_activities = get_activities_cached()
-            mettre_a_jour_et_commit_cache_parquet(df_activities)
             st.session_state["df_activities"] = df_activities
             st.success("Données mises à jour.")
         except Exception as e:
