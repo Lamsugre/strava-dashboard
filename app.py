@@ -706,7 +706,24 @@ elif page == "💥 Analyse Fractionné":
                         )
                         st.altair_chart(pace_chart)
                     else:
-                        st.info("Pas de données d'allure.")
+                        missing_fields = []
+                        if distance_stream is None or len(distance_stream) == 0:
+                            missing_fields.append("Distance Stream")
+                        if velocity_stream is None or len(velocity_stream) == 0:
+                            missing_fields.append("Vitesse Stream")
+                        if missing_fields:
+                            st.warning(
+                                "Strava n'a pas renvoyé les streams nécessaires : "
+                                + ", ".join(missing_fields)
+                                + "."
+                            )
+                        elif len(distance_stream) != len(velocity_stream):
+                            st.warning(
+                                "Strava a renvoyé des streams de longueurs différentes "
+                                "pour calculer l'allure."
+                            )
+                        else:
+                            st.warning("Strava n'a pas renvoyé les streams nécessaires.")
                 else:
                     st.info("Aucune donnée de stream en cache pour cette activité.")
         else:
