@@ -299,7 +299,8 @@ def get_activities_cached():
         mettre_a_jour_et_commit_cache_parquet(df_new)
         df_cache = pd.concat([df_cache, df_new], ignore_index=True)
 
-    df_cache.drop_duplicates(subset="id", inplace=True)
+    if "id" in df_cache.columns:
+        df_cache.drop_duplicates(subset="id", inplace=True)
     return df_cache
 df_activities = st.session_state.get("df_activities", None)
 with st.sidebar:
@@ -325,6 +326,7 @@ if page == "🏠 Tableau général":
 
     if st.button("📥 Actualiser mes données Strava"):
         try:
+            get_activities_cached.clear()
             df_activities = get_activities_cached()
             st.session_state["df_activities"] = df_activities
             st.success("Données mises à jour.")
