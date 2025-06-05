@@ -491,7 +491,7 @@ if page == "🏠 Tableau général":
         .encode(
             x="Semaine:O",
             y=alt.Y(
-                "`Allure (s/km)`",
+                "Allure (s/km)",
                 type="quantitative",
                 title="Allure (mm:ss/km)",
                 axis=alt.Axis(
@@ -690,7 +690,7 @@ elif page == "💥 Analyse Fractionné":
                             .encode(
                                 x=alt.X("Distance (km)", title="Distance (km)", scale=alt.Scale(zero=False)),
                                 y=alt.Y(
-                                    "`Allure (s/km)`",
+                                    "Allure (s/km)",
                                     type="quantitative",
                                     title="Allure (mm:ss/km)",
                                     scale=alt.Scale(zero=False, reverse=True),
