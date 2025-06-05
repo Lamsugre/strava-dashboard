@@ -576,13 +576,19 @@ elif page == "💥 Analyse Fractionné":
                 # --- Streams depuis le cache
                 cached = df_cache[df_cache["id"] == act_id]
                 if not cached.empty:
-                    distance_stream = [d / 1000 for d in cached.iloc[0]["Distance Stream"]]
+                    distance_stream = cached.iloc[0]["Distance Stream"]
                     fc_stream = cached.iloc[0]["FC Stream"]
                     velocity_stream = cached.iloc[0].get("Vitesse Stream", [])
 
-                    if distance_stream and fc_stream and len(distance_stream) == len(fc_stream):
+                    if (
+                        isinstance(fc_stream, (list, np.ndarray))
+                        and isinstance(distance_stream, (list, np.ndarray))
+                        and len(fc_stream) > 0
+                        and len(distance_stream) == len(fc_stream)
+                    ):
+                        distance_stream_km = [d / 1000 for d in distance_stream]
                         df_hr = pd.DataFrame({
-                            "Distance (km)": distance_stream,
+                            "Distance (km)": distance_stream_km,
                             "Fréquence cardiaque (bpm)": fc_stream,
                         })
                         hr_chart = (
@@ -600,10 +606,15 @@ elif page == "💥 Analyse Fractionné":
                     else:
                         st.info("Pas de données de fréquence cardiaque.")
 
-                    if distance_stream and velocity_stream and len(distance_stream) == len(velocity_stream):
+                    if (
+                        isinstance(velocity_stream, (list, np.ndarray))
+                        and isinstance(distance_stream, (list, np.ndarray))
+                        and len(velocity_stream) > 0
+                        and len(distance_stream) == len(velocity_stream)
+                    ):
                         pace_stream = [16.6667 / v if v else None for v in velocity_stream]
                         df_pace = pd.DataFrame({
-                            "Distance (km)": distance_stream,
+                            "Distance (km)": distance_stream_km,
                             "Allure (min/km)": pace_stream,
                         })
                         pace_chart = (
