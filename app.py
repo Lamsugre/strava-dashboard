@@ -299,7 +299,8 @@ def get_activities_cached():
         mettre_a_jour_et_commit_cache_parquet(df_new)
         df_cache = pd.concat([df_cache, df_new], ignore_index=True)
 
-    df_cache.drop_duplicates(subset="id", inplace=True)
+    if "id" in df_cache.columns:
+        df_cache.drop_duplicates(subset="id", inplace=True)
     return df_cache
 df_activities = st.session_state.get("df_activities", None)
 with st.sidebar:
@@ -325,6 +326,7 @@ if page == "🏠 Tableau général":
 
     if st.button("📥 Actualiser mes données Strava"):
         try:
+            get_activities_cached.clear()
             df_activities = get_activities_cached()
             st.session_state["df_activities"] = df_activities
             st.success("Données mises à jour.")
@@ -377,8 +379,22 @@ if page == "🏠 Tableau général":
             st.warning(f"❗ La colonne '{col}' est absente du cache Strava.")
             df_cache[col] = None
 
-    # Perform the merge operation
-    df_merge = df.merge(df_cache[required_columns], on="id", how="left")
+    # Perform the merge operation while avoiding duplicate column names
+    df_merge = df.merge(
+        df_cache[required_columns], on="id", how="left", suffixes=("", "_cache")
+    )
+
+    # If the original dataframe possédait déjà les colonnes de stream, on
+    # complète les valeurs manquantes avec celles du cache et on supprime les
+    # colonnes temporaires
+    for col in ["FC Stream", "Temps Stream", "Distance Stream"]:
+        cache_col = f"{col}_cache"
+        if cache_col in df_merge.columns:
+            if col in df_merge.columns:
+                df_merge[col] = df_merge[col].combine_first(df_merge[cache_col])
+            else:
+                df_merge[col] = df_merge[cache_col]
+            df_merge.drop(columns=cache_col, inplace=True)
 
     # Sélecteur
     selected_label = st.selectbox("Choisis une activité :", df_merge["Nom"] + " – " + df_merge["Date_affichée"])
