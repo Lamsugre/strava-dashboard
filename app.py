@@ -580,7 +580,13 @@ elif page == "💥 Analyse Fractionné":
                     fc_stream = cached.iloc[0]["FC Stream"]
                     velocity_stream = cached.iloc[0].get("Vitesse Stream", [])
 
-                    if distance_stream and fc_stream and len(distance_stream) == len(fc_stream):
+                    if (
+                        fc_stream is not None
+                        and distance_stream is not None
+                        and len(fc_stream) > 0
+                        and len(distance_stream) > 0
+                        and len(distance_stream) == len(fc_stream)
+                    ):
                         df_hr = pd.DataFrame({
                             "Distance (km)": distance_stream,
                             "Fréquence cardiaque (bpm)": fc_stream,
@@ -600,7 +606,13 @@ elif page == "💥 Analyse Fractionné":
                     else:
                         st.info("Pas de données de fréquence cardiaque.")
 
-                    if distance_stream and velocity_stream and len(distance_stream) == len(velocity_stream):
+                    if (
+                        velocity_stream is not None
+                        and distance_stream is not None
+                        and len(velocity_stream) > 0
+                        and len(distance_stream) > 0
+                        and len(distance_stream) == len(velocity_stream)
+                    ):
                         pace_stream = [16.6667 / v if v else None for v in velocity_stream]
                         df_pace = pd.DataFrame({
                             "Distance (km)": distance_stream,
