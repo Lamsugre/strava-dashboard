@@ -377,8 +377,22 @@ if page == "🏠 Tableau général":
             st.warning(f"❗ La colonne '{col}' est absente du cache Strava.")
             df_cache[col] = None
 
-    # Perform the merge operation
-    df_merge = df.merge(df_cache[required_columns], on="id", how="left")
+    # Perform the merge operation while avoiding duplicate column names
+    df_merge = df.merge(
+        df_cache[required_columns], on="id", how="left", suffixes=("", "_cache")
+    )
+
+    # If the original dataframe possédait déjà les colonnes de stream, on
+    # complète les valeurs manquantes avec celles du cache et on supprime les
+    # colonnes temporaires
+    for col in ["FC Stream", "Temps Stream", "Distance Stream"]:
+        cache_col = f"{col}_cache"
+        if cache_col in df_merge.columns:
+            if col in df_merge.columns:
+                df_merge[col] = df_merge[col].combine_first(df_merge[cache_col])
+            else:
+                df_merge[col] = df_merge[cache_col]
+            df_merge.drop(columns=cache_col, inplace=True)
 
     # Sélecteur
     selected_label = st.selectbox("Choisis une activité :", df_merge["Nom"] + " – " + df_merge["Date_affichée"])
