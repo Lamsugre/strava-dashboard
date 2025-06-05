@@ -7,7 +7,6 @@ import json
 import os
 import openai
 import base64
-import altair as alt
 from io import BytesIO
 from github import Github
 
@@ -202,9 +201,9 @@ def construire_dataframe_activites_complet(activities, access_token):
             "Description": act.get("description", "")
         }
 
-        # Appel de l'API Strava pour récupérer le stream FC + temps + distance
+        # Appel de l'API Strava pour récupérer les streams utiles
         stream_url = f"https://www.strava.com/api/v3/activities/{act['id']}/streams"
-        params = {"keys": "heartrate,time,distance", "key_by_type": "true"}
+        params = {"keys": "heartrate,time,distance,velocity_smooth", "key_by_type": "true"}
         try:
             stream_res = requests.get(stream_url, headers=headers, params=params)
             if stream_res.status_code == 200:
@@ -212,14 +211,17 @@ def construire_dataframe_activites_complet(activities, access_token):
                 row["FC Stream"] = stream_data.get("heartrate", {}).get("data", [])
                 row["Temps Stream"] = stream_data.get("time", {}).get("data", [])
                 row["Distance Stream"] = stream_data.get("distance", {}).get("data", [])
+                row["Vitesse Stream"] = stream_data.get("velocity_smooth", {}).get("data", [])
             else:
                 row["FC Stream"] = []
                 row["Temps Stream"] = []
                 row["Distance Stream"] = []
+                row["Vitesse Stream"] = []
         except Exception as e:
             row["FC Stream"] = []
             row["Temps Stream"] = []
             row["Distance Stream"] = []
+            row["Vitesse Stream"] = []
 
         rows.append(row)
 
@@ -233,7 +235,6 @@ def commit_to_github(updated_text):
     g = Github(github_token)
     repo = g.get_repo(github_repo)
     file = repo.get_contents(PLAN_PATH)
-    encoded_content = base64.b64decode(file.content).decode("utf-8")
     old_sha = file.sha
     repo.update_file(
         path=PLAN_PATH,
@@ -242,7 +243,6 @@ def commit_to_github(updated_text):
         sha=old_sha
     )
 def appel_chatgpt_conseil(question, df_activities, df_plan):
-    import openai
 
     # Préparer le contexte des données
     resume_activites = df_activities[["Date_affichée", "Nom", "Distance (km)", "Allure (min/km)", "FC Moyenne"]].tail(5).to_string(index=False)
@@ -276,32 +276,16 @@ def appel_chatgpt_conseil(question, df_activities, df_plan):
 @st.cache_data(ttl=1800)
 def get_activities_cached():
     access_token = refresh_access_token()
-    # Récupère les descriptions pour toutes les activités retournées
-    return get_strava_activities(access_token, num_activities=50, max_detailed=50)
-activities = st.session_state.get("activities", None)
+    activities = get_strava_activities(access_token, num_activities=50, max_detailed=50)
+    return construire_dataframe_activites_complet(activities, access_token)
+df_activities = st.session_state.get("df_activities", None)
 with st.sidebar:
     st.subheader("🧠 Coach IA : pose une question")
     question = st.text_area("Ta question au coach :", key="chat_input", height=120)
     if st.button("💬 Envoyer au coach IA"):
-        if activities and isinstance(activities, list):
+        if df_activities is not None and not df_activities.empty:
             try:
-                df = pd.DataFrame([{
-                    "Nom": act.get("name", "—"),
-                    "Distance (km)": round(act["distance"] / 1000, 2),
-                    "Durée (min)": round(act["elapsed_time"] / 60, 1),
-                    "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
-                    "FC Moyenne": act.get("average_heartrate"),
-                    "FC Max": act.get("max_heartrate"),
-                    "Date": act["start_date_local"][:10],
-                    "Type": act.get("type", "—"),
-                    "Description": act.get("description", "")
-                } for act in activities])
-
-                df["Date"] = pd.to_datetime(df["Date"])
-                df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
-                df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
-
-                reponse = appel_chatgpt_conseil(question.strip(), df, df_plan)
+                reponse = appel_chatgpt_conseil(question.strip(), df_activities, df_plan)
                 st.markdown("---")
                 st.markdown("**Réponse du coach :**")
                 st.markdown(reponse)
@@ -311,50 +295,48 @@ with st.sidebar:
         else:
             st.warning("⚠️ Les données Strava ne sont pas encore chargées. Actualise les données avant de poser une question.")
 # Page selector
-page = st.sidebar.radio("📂 Choisir une vue", ["🏠 Tableau général", "💥 Analyse Fractionné"])
+page = st.sidebar.radio(
+    "📂 Choisir une vue",
+    ["🏠 Tableau général", "💥 Analyse Fractionné"],
+    key="selected_page",
+)
 
-activities = st.session_state.get("activities", None)
+if page == "🏠 Tableau général":
+    st.subheader("📅 Actualisation des données")
 
-st.subheader("📅 Actualisation des données")
+    if st.button("📥 Actualiser mes données Strava"):
+        try:
+            df_activities = get_activities_cached()
+            mettre_a_jour_et_commit_cache_parquet(df_activities)
+            st.session_state["df_activities"] = df_activities
+            st.success("Données mises à jour.")
+        except Exception as e:
+            st.error("Erreur pendant la mise à jour.")
+            st.exception(e)
 
-if st.button("📥 Actualiser mes données Strava"):
-    try:
-        activities = get_activities_cached()
-        access_token = refresh_access_token()
-        df_nouvelles = construire_dataframe_activites_complet(activities, access_token)
+df_cache = charger_cache_parquet()
 
-        mettre_a_jour_et_commit_cache_parquet(df_nouvelles)
-
-        st.session_state["activities"] = activities
-        st.success("Données mises à jour.")
-    except Exception as e:
-        st.error("Erreur pendant la mise à jour.")
-        st.exception(e)
-
-if activities and isinstance(activities, (list, pd.DataFrame)):
-    # Vérifie que df_cache contient bien les colonnes nécessaires
-    df_cache = charger_cache_parquet()
-    if 'id' not in df_cache.columns:
-        st.warning("❗ Le cache Strava ne contient pas la colonne 'id'. Impossible d'afficher les courbes de fréquence cardiaque.")
-        df_cache = pd.DataFrame(columns=['id', 'FC Stream', 'Temps Stream', 'Distance Stream'])
-    # Ensure activities are valid before creating df
-if activities and isinstance(activities, list):
-    df = pd.DataFrame([{ 
-        "id": act.get("id"),
-        "Nom": act.get("name", "—"),
-        "Distance (km)": round(act["distance"] / 1000, 2),
-        "Durée (min)": round(act["elapsed_time"] / 60, 1),
-        "Allure (min/km)": round((act["elapsed_time"] / 60) / (act["distance"] / 1000), 2) if act["distance"] > 0 else None,
-        "FC Moyenne": act.get("average_heartrate"),
-        "FC Max": act.get("max_heartrate"),
-        "Date": act.get("start_date_local", "")[:10],
-        "Type": act.get("type", "—"),
-        "Description": act.get("description", "")
-    } for act in activities])
+if df_activities is not None and not df_activities.empty:
+    df = df_activities.copy()
+elif not df_cache.empty:
+    df = df_cache.drop(
+        columns=[
+            "FC Stream",
+            "Temps Stream",
+            "Distance Stream",
+            "Vitesse Stream",
+        ],
+        errors="ignore",
+    )
+    st.info("📂 Données chargées depuis le cache.")
 else:
     st.warning("⚠️ Les données Strava ne sont pas encore chargées.")
-    df = pd.DataFrame()  # Create an empty DataFrame to avoid errors
+    df = pd.DataFrame()
 
+# Ensure df_cache has required columns
+if 'id' not in df_cache.columns:
+    st.warning("❗ Le cache Strava ne contient pas la colonne 'id'. Impossible d'afficher les courbes de fréquence cardiaque.")
+    df_cache = pd.DataFrame(columns=['id', 'FC Stream', 'Temps Stream', 'Distance Stream', 'Vitesse Stream'])
 # Check if 'id' column exists
 if 'id' not in df.columns:
     st.warning("❗ Les données Strava ne contiennent pas la colonne 'id'.")
@@ -565,15 +547,12 @@ if page == "🏠 Tableau général":
                     else:
                         st.warning("Impossible de récupérer les laps.")
 
-                    # --- Streams
-                    url_stream = f"https://www.strava.com/api/v3/activities/{act_id}/streams"
-                    params = {"keys": "heartrate,distance,velocity_smooth", "key_by_type": "true"}
-                    res_stream = requests.get(url_stream, headers=headers, params=params)
-                    if res_stream.status_code == 200:
-                        streams = res_stream.json()
-                        distance_stream = [d / 1000 for d in streams.get("distance", {}).get("data", [])]
-                        fc_stream = streams.get("heartrate", {}).get("data", [])
-                        velocity_stream = streams.get("velocity_smooth", {}).get("data", [])
+                    # --- Streams depuis le cache
+                    cached = df_cache[df_cache["id"] == act_id]
+                    if not cached.empty:
+                        distance_stream = [d / 1000 for d in cached.iloc[0]["Distance Stream"]]
+                        fc_stream = cached.iloc[0]["FC Stream"]
+                        velocity_stream = cached.iloc[0].get("Vitesse Stream", [])
 
                         if distance_stream and fc_stream and len(distance_stream) == len(fc_stream):
                             df_hr = pd.DataFrame({
@@ -616,6 +595,6 @@ if page == "🏠 Tableau général":
                         else:
                             st.info("Pas de données d'allure.")
                     else:
-                        st.error("Impossible de récupérer les données de l'activité.")
+                        st.info("Aucune donnée de stream en cache pour cette activité.")
             else:
                 st.info("Aucune activité marquée comme 'tempo'.")
