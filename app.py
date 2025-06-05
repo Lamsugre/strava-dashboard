@@ -480,7 +480,8 @@ if page == "🏠 Tableau général":
     line_chart = alt.Chart(df_weekly).mark_line(color="orange", point=True).encode(
         x="Semaine:O",
         y=alt.Y(
-            "Allure (s/km):Q",
+            "`Allure (s/km)`",
+            type="quantitative",
             title="Allure (mm:ss/km)",
             axis=alt.Axis(titleColor="orange", labelExpr="timeFormat(datum.value*1000, '%M:%S')"),
             scale=alt.Scale(reverse=True)
@@ -668,7 +669,8 @@ elif page == "💥 Analyse Fractionné":
                             .encode(
                                 x=alt.X("Distance (km)", title="Distance (km)", scale=alt.Scale(zero=False)),
                                 y=alt.Y(
-                                    "Allure (s/km):Q",
+                                    "`Allure (s/km)`",
+                                    type="quantitative",
                                     title="Allure (mm:ss/km)",
                                     scale=alt.Scale(zero=False, reverse=True),
                                     axis=alt.Axis(labelExpr="timeFormat(datum.value*1000, '%M:%S')"),
