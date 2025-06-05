@@ -313,8 +313,13 @@ if page == "🏠 Tableau général":
 if df_activities is not None and not df_activities.empty:
     df = df_activities.copy()
 else:
-    st.warning("⚠️ Les données Strava ne sont pas encore chargées.")
-    df = pd.DataFrame()
+    df_cache = charger_cache_parquet()
+    if not df_cache.empty:
+        df = df_cache.copy()
+        st.info("✅ Données chargées depuis le cache.")
+    else:
+        st.warning("⚠️ Les données Strava ne sont pas encore chargées.")
+        df = pd.DataFrame()
 
 df_cache = charger_cache_parquet()
 if 'id' not in df_cache.columns:
