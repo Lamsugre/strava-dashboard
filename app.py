@@ -41,6 +41,24 @@ PLAN_PATH = "plan_semi_vincennes_2025.json"
 CACHE_PARQUET_PATH = "data/strava_data_cache.parquet"
 PLAN_YEAR = 2025
 
+
+def minutes_to_mmss(minutes: float) -> str:
+    """Convert minutes per km to mm:ss string."""
+    if minutes is None or pd.isna(minutes):
+        return ""
+    total_seconds = int(round(minutes * 60))
+    m, s = divmod(total_seconds, 60)
+    return f"{m:02d}:{s:02d}"
+
+
+def seconds_to_mmss(seconds: float) -> str:
+    """Convert seconds per km to mm:ss string."""
+    if seconds is None or pd.isna(seconds):
+        return ""
+    total_seconds = int(round(seconds))
+    m, s = divmod(total_seconds, 60)
+    return f"{m:02d}:{s:02d}"
+
 if os.path.exists(PLAN_PATH):
     with open(PLAN_PATH, "r", encoding="utf-8") as f:
         plan_data = json.load(f)
@@ -196,17 +214,23 @@ def construire_dataframe_activites_complet(activities, access_token):
     headers = {"Authorization": f"Bearer {access_token}"}
 
     for act in activities:
+        pace_min = (
+            (act.get("elapsed_time", 0) / 60) / (act.get("distance", 1) / 1000)
+            if act.get("distance", 0) > 0
+            else None
+        )
         row = {
             "id": act.get("id"),
             "Nom": act.get("name", "—"),
             "Distance (km)": round(act.get("distance", 0) / 1000, 2),
             "Durée (min)": round(act.get("elapsed_time", 0) / 60, 1),
-            "Allure (min/km)": round((act.get("elapsed_time", 0) / 60) / (act.get("distance", 1) / 1000), 2) if act.get("distance", 0) > 0 else None,
+            "Allure (min/km)": pace_min,
+            "Allure (mm:ss/km)": minutes_to_mmss(pace_min) if pace_min is not None else "",
             "FC Moyenne": act.get("average_heartrate"),
             "FC Max": act.get("max_heartrate"),
             "Date": act.get("start_date_local", "")[:10],
             "Type": act.get("type", "—"),
-            "Description": act.get("description", "")
+            "Description": act.get("description", ""),
         }
 
         # Appel de l'API Strava pour récupérer les streams utiles
@@ -237,6 +261,8 @@ def construire_dataframe_activites_complet(activities, access_token):
     df["Date"] = pd.to_datetime(df["Date"])
     df["Date_affichée"] = df["Date"].dt.strftime("%d/%m/%Y")
     df["Semaine"] = df["Date"].dt.strftime("%Y-%U")
+    if "Allure (min/km)" in df.columns:
+        df["Allure (s/km)"] = df["Allure (min/km)"] * 60
     return df
 
 def commit_to_github(updated_text):
@@ -365,7 +391,11 @@ if page == "🏠 Tableau général":
     type_choisi = st.selectbox("Filtrer par type d'activité", ["Toutes"] + types_disponibles, key="type_filter")
     if type_choisi != "Toutes":
         df = df[df["Type"] == type_choisi]
-    st.dataframe(df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}))
+    df_display = df.drop(columns="Date").rename(columns={"Date_affichée": "Date"}).copy()
+    if "Allure (min/km)" in df_display.columns:
+        df_display["Allure (mm:ss/km)"] = df_display["Allure (min/km)"].apply(minutes_to_mmss)
+        df_display.drop(columns=["Allure (min/km)"], inplace=True)
+    st.dataframe(df_display)
 
     st.subheader("📊 Visualiser la fréquence cardiaque")
 
@@ -438,17 +468,24 @@ if page == "🏠 Tableau général":
         "Durée (min)": "sum"
     }).reset_index()
     df_weekly["Allure (min/km)"] = df_weekly["Durée (min)"] / df_weekly["Distance (km)"]
+    df_weekly["Allure (s/km)"] = df_weekly["Allure (min/km)"] * 60
+    df_weekly["Allure (mm:ss/km)"] = df_weekly["Allure (min/km)"].apply(minutes_to_mmss)
 
     bar_chart = alt.Chart(df_weekly).mark_bar(color="#1f77b4").encode(
         x=alt.X("Semaine:O", title="Semaine"),
         y=alt.Y("Distance (km):Q", title="Distance (km)"),
-        tooltip=["Semaine", "Distance (km)", "Allure (min/km)"]
+        tooltip=["Semaine", "Distance (km)", "Allure (mm:ss/km)"]
     )
 
     line_chart = alt.Chart(df_weekly).mark_line(color="orange", point=True).encode(
         x="Semaine:O",
-        y=alt.Y("Allure (min/km):Q", title="Allure (min/km)", axis=alt.Axis(titleColor="orange")),
-        tooltip=["Allure (min/km)"]
+        y=alt.Y(
+            "Allure (s/km):Q",
+            title="Allure (mm:ss/km)",
+            axis=alt.Axis(titleColor="orange", labelExpr="timeFormat(datum.value*1000, '%M:%S')"),
+            scale=alt.Scale(reverse=True)
+        ),
+        tooltip=["Allure (mm:ss/km)"]
     )
 
     chart = alt.layer(bar_chart, line_chart).resolve_scale(y='independent').properties(
@@ -534,10 +571,11 @@ elif page == "💥 Analyse Fractionné":
         st.info("Aucune activité disponible.")
     else:
         df_fractionne = df[df["Description"].str.contains("tempo", case=False, na=False)]
-        st.dataframe(
-            df_fractionne[["Date_affichée", "Nom", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max", "Description"]]
-            .rename(columns={"Date_affichée": "Date"})
-        )
+        df_frac_disp = df_fractionne[["Date_affichée", "Nom", "Distance (km)", "Allure (min/km)", "FC Moyenne", "FC Max", "Description"]].rename(columns={"Date_affichée": "Date"}).copy()
+        if "Allure (min/km)" in df_frac_disp.columns:
+            df_frac_disp["Allure (mm:ss/km)"] = df_frac_disp["Allure (min/km)"].apply(minutes_to_mmss)
+            df_frac_disp.drop(columns=["Allure (min/km)"], inplace=True)
+        st.dataframe(df_frac_disp)
 
         if not df_fractionne.empty:
             label_act = st.selectbox(
@@ -568,8 +606,12 @@ elif page == "💥 Analyse Fractionné":
                         }
                         for i, lap in enumerate(laps_data)
                     ])
+                    df_laps_display = df_laps.copy()
+                    if "Allure (min/km)" in df_laps_display.columns:
+                        df_laps_display["Allure (mm:ss/km)"] = df_laps_display["Allure (min/km)"].apply(minutes_to_mmss)
+                        df_laps_display.drop(columns=["Allure (min/km)"], inplace=True)
                     st.subheader("📋 Détail des splits")
-                    st.dataframe(df_laps)
+                    st.dataframe(df_laps_display)
                 else:
                     st.warning("Impossible de récupérer les laps.")
 
@@ -614,17 +656,24 @@ elif page == "💥 Analyse Fractionné":
                         and len(distance_stream) == len(velocity_stream)
                     ):
                         pace_stream = [16.6667 / v if v else None for v in velocity_stream]
+                        pace_seconds = [p * 60 if p is not None else None for p in pace_stream]
                         df_pace = pd.DataFrame({
                             "Distance (km)": distance_stream,
-                            "Allure (min/km)": pace_stream,
+                            "Allure (s/km)": pace_seconds,
+                            "Allure (mm:ss/km)": [minutes_to_mmss(p) if p is not None else "" for p in pace_stream],
                         })
                         pace_chart = (
                             alt.Chart(df_pace)
                             .mark_line(color="steelblue")
                             .encode(
                                 x=alt.X("Distance (km)", title="Distance (km)", scale=alt.Scale(zero=False)),
-                                y=alt.Y("Allure (min/km)", title="Allure (min/km)", scale=alt.Scale(zero=False)),
-                                tooltip=["Distance (km)", "Allure (min/km)"]
+                                y=alt.Y(
+                                    "Allure (s/km):Q",
+                                    title="Allure (mm:ss/km)",
+                                    scale=alt.Scale(zero=False, reverse=True),
+                                    axis=alt.Axis(labelExpr="timeFormat(datum.value*1000, '%M:%S')"),
+                                ),
+                                tooltip=["Distance (km)", "Allure (mm:ss/km)"]
                             )
                             .interactive()
                             .properties(width=700, height=300, title="Évolution de l'allure")
